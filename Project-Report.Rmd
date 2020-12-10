@@ -1,6 +1,5 @@
 ---
 title: "STAT 420: Final Project"
-author: "Ted Chen (jundong2), Name (netid)....."
 date: "12/10/2020"
 output:
   html_document:
@@ -11,6 +10,42 @@ output:
 # Introduction
 
 # Methods
+
+## Data Preprocessing
+
+```{r dp0, message = FALSE}
+# Load required packages
+library(tidyverse)
+library(caret)
+```
+
+```{r dp1}
+# Import two datasets
+redwine = read.csv("winequality-red.csv")
+whitewine  = read.csv("winequality-white.csv")
+
+# Add Classification "red" and "white" and merge them as one dataset
+redwine$type = "red"
+whitewine$type = "white"
+wine = rbind(redwine, whitewine)
+str(wine)
+```
+
+There are 6497 observations with 13 variables in this combined dataset.
+
+Among 13 variables, 12 variables are numeric attributes and 1 variable is catergorical attribute.
+
+Since the original datasets are clean-version data, we don't need to perform further data cleansing.
+
+```{r dp2}
+# Cross-validation
+# 80% of the dataset for training purpose and 20% of the dataset for testing purpose
+random_sample <- createDataPartition(wine$quality, p = 0.8, list = FALSE)
+training_data = wine[random_sample, ]
+testing_data = wine[-random_sample, ]
+```
+
+## To be Add
 
 # Results
 
