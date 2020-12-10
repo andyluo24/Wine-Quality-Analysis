@@ -1,0 +1,64 @@
+---
+title: "Final Project Proposal"
+author: "Eric Lu, Andy Luo, Ted Chen, Dali Su"
+date: "11/12/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+# Project Title
+
+Wine Master
+
+# Group Member
+
+Andy Luo   
+Dali Su  
+Ted Chen  
+Eric Lu  
+
+# Dataset Description
+
+### The dataset contains 6497 observations with 13 variables  
+	Fixed_acidity: fixed acidity (Numeric)   
+	Volatile_acidity: volatile acidity (Numeric)  
+	Citric_acid: citric acid (Numeric)  
+	Redisual_sugar: residual sugar Numeric)   
+	Chlorides:  chlorides (Numeric)  
+	Free_sulfur_dioxide: free sulfur dioxide(Numeric)  
+	Total_sulfur_dioxide: total sulfur dioxide (Numeric)  
+	Density: density (Numeric)   
+	PH: pH (Numeric)   
+	Sulphates: sulphates (Numeric)  
+	Alcohol: alcohol (Numeric)  
+	Quality: quality level of wines ranging from 1 to 10 (Categorical)  
+	Type: Red = Red Wine or White = White Wine (Categorical)  
+
+
+
+# Blackground
+
+We found two datasets: the first one represents the white wine and the second represents the red wine in northern Portugal. Both datasets contain the information of thousands of wine samples, including their alcohol level and density. We combine these two datasets and add a new variable indicating their types of red or white wine.
+
+
+# Brief Statement
+
+We are trying to find the best model that predicts or determines the quality of wines by estimating from the explanatory variables; some explanatory variables may be alcohol, PH level, and density. 
+
+
+# Data Snippet
+```{r}
+redwine = read.csv("winequality-red.csv")
+whitewine = read.csv("winequality-white.csv")
+redwine$type = "red"
+whitewine$type = "white"
+total <- rbind(redwine, whitewine)
+head(total)
+```
+
+
+# Reference
+
+https://archive.ics.uci.edu/ml/datasets/wine+quality   
+P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
+Modeling wine preferences by data mining from physicochemical properties. In Decision Support Systems, Elsevier, 47(4):547-553, 2009.
