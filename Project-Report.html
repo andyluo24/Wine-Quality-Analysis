@@ -394,11 +394,14 @@ summary {
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#introduction">Introduction</a>
+<ul>
+<li><a href="#data-description">Data Description</a></li>
+<li><a href="#project-description">Project Description</a></li>
+</ul></li>
 <li><a href="#methods">Methods</a>
 <ul>
 <li><a href="#data-preprocessing">Data Preprocessing</a></li>
-<li><a href="#to-be-add">To be Add</a></li>
 </ul></li>
 <li><a href="#results">Results</a></li>
 <li><a href="#discussion">Discussion</a></li>
@@ -406,13 +409,32 @@ summary {
 </ul>
 </div>
 
-<div id="introduction" class="section level1">
-<h1>Introduction</h1>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<div id="data-description" class="section level3">
+<h3>Data Description</h3>
+<p>Two datasets from the Machine Learning Repository of UCI will be used for this project.</p>
+<p>The first dataset “winequality-red” contains the red wine data in the northern Portugal area, while the second dataset “winequality-white” contains the white wine data.</p>
+<p>For analysis purposes, we classify all the observations based on their color types and merge them into one dataset.</p>
+<p>The complete dataset has 6497 observations with 13 variables.</p>
+<p>Among the 13 variables, 12 variables are numeric attributes and 1 variable is a categorical attribute.</p>
+<p>Numeric attributes:</p>
+<p><strong>Fixed_acidity</strong>, <strong>Redisual_sugar</strong>, <strong>Chlorides</strong>, <strong>Free_sulfur_dioxide</strong>, <strong>PH</strong>, <strong>Sulphates</strong>, <strong>Alcohol</strong>, <strong>Quality</strong></p>
+<p>Categorical attributes:</p>
+<p><strong>Type (Red / White)</strong></p>
 </div>
-<div id="methods" class="section level1">
-<h1>Methods</h1>
-<div id="data-preprocessing" class="section level2">
-<h2>Data Preprocessing</h2>
+<div id="project-description" class="section level3">
+<h3>Project Description</h3>
+<p>Wine, as one type of alcohol, has a total consumption of 966 million in the US in 2018.</p>
+<p>Therefore, we find it may be interesting to discover the relationship between wine quality and other attributes.</p>
+<p>Then we will build a model to predict the wine quality based on those attributes.</p>
+<p>In this project, we will use “Quality” as the response variable and all other attributes as predictor variables to discover the most appropriate model.</p>
+</div>
+</div>
+<div id="methods" class="section level2">
+<h2>Methods</h2>
+<div id="data-preprocessing" class="section level3">
+<h3>Data Preprocessing</h3>
 <pre class="r"><code># Load required packages
 library(tidyverse)
 library(caret)</code></pre>
@@ -448,18 +470,15 @@ random_sample &lt;- createDataPartition(wine$quality, p = 0.8, list = FALSE)
 training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]</code></pre>
 </div>
-<div id="to-be-add" class="section level2">
-<h2>To be Add</h2>
 </div>
+<div id="results" class="section level2">
+<h2>Results</h2>
 </div>
-<div id="results" class="section level1">
-<h1>Results</h1>
+<div id="discussion" class="section level2">
+<h2>Discussion</h2>
 </div>
-<div id="discussion" class="section level1">
-<h1>Discussion</h1>
-</div>
-<div id="appendix" class="section level1">
-<h1>Appendix</h1>
+<div id="appendix" class="section level2">
+<h2>Appendix</h2>
 </div>
 
 

@@ -7,11 +7,41 @@ output:
     toc: yes
 ---
 
-# Introduction
+## Introduction
 
-# Methods
+### Data Description
 
-## Data Preprocessing
+Two datasets from the Machine Learning Repository of UCI will be used for this project.
+
+The first dataset "winequality-red" contains the red wine data in the northern Portugal area, while the second dataset "winequality-white" contains the white wine data. 
+
+For analysis purposes, we classify all the observations based on their color types and merge them into one dataset.
+
+The complete dataset has 6497 observations with 13 variables. 
+
+Among the 13 variables, 12 variables are numeric attributes and 1 variable is a categorical attribute.
+
+Numeric attributes: 
+
+**Fixed_acidity**, **Redisual_sugar**, **Chlorides**, **Free_sulfur_dioxide**, **PH**, **Sulphates**, **Alcohol**, **Quality**
+
+Categorical attributes:
+
+**Type (Red / White)**
+
+### Project Description
+
+Wine, as one type of alcohol, has a total consumption of 966 million in the US in 2018. 
+  
+Therefore, we find it may be interesting to discover the relationship between wine quality and other attributes. 
+  
+Then we will build a model to predict the wine quality based on those attributes. 
+  
+In this project, we will use "Quality" as the response variable and all other attributes as predictor variables to discover the most appropriate model.
+
+## Methods
+
+### Data Preprocessing
 
 ```{r dp0, message = FALSE}
 # Load required packages
@@ -45,10 +75,8 @@ training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]
 ```
 
-## To be Add
+## Results
 
-# Results
+## Discussion
 
-# Discussion
-
-# Appendix
+## Appendix
