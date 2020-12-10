@@ -7,9 +7,9 @@ output:
     toc: yes
 ---
 
-## Introduction
+# Introduction
 
-### Data Description
+## Data Description
 
 Two datasets from the Machine Learning Repository of UCI will be used for this project.
 
@@ -29,7 +29,7 @@ Categorical attributes:
 
 **Type (Red / White)**
 
-### Project Description
+## Project Description
 
 Wine, as one type of alcohol, has a total consumption of 966 million in the US in 2018. 
   
@@ -39,14 +39,17 @@ Then we will build a model to predict the wine quality based on those attributes
   
 In this project, we will use "Quality" as the response variable and all other attributes as predictor variables to discover the most appropriate model.
 
-## Methods
+# Methods
 
-### Data Preprocessing
+## Data Preprocessing
 
 ```{r dp0, message = FALSE}
 # Load required packages
 library(tidyverse)
 library(caret)
+
+# Set seed for report consistency
+set.seed(420)
 ```
 
 ```{r dp1}
@@ -70,13 +73,53 @@ Since the original datasets are clean-version data, we don't need to perform fur
 ```{r dp2}
 # Cross-validation
 # 80% of the dataset for training purpose and 20% of the dataset for testing purpose
-random_sample <- createDataPartition(wine$quality, p = 0.8, list = FALSE)
+random_sample = createDataPartition(wine$quality, p = 0.8, list = FALSE)
 training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]
 ```
 
-## Results
+## Model Training
 
-## Discussion
+### Interaction Model
 
-## Appendix
+```{r IM0}
+# Reproduce the training_data and factor the dummy variable "type"
+training_data_IM = training_data
+training_data_IM$type = as.factor(training_data_IM$type)
+four_way_interaction_model = lm(quality ~ .^4, data = training_data_IM)
+three_way_interaction_model = lm(quality ~ .^3, data = training_data_IM)
+two_way_interaction_model = lm(quality ~ .^2, data = training_data_IM)
+one_way_interaction_model = lm(quality ~ ., data = training_data_IM)
+```
+
+```{r IM1}
+anova(one_way_interaction_model, two_way_interaction_model)$"Pr(>F)"[2]
+```
+
+Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the "two_way_interaction_model" is better.
+
+```{r IM2}
+anova(two_way_interaction_model, three_way_interaction_model)$"Pr(>F)"[2]
+```
+
+Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the "three_way_interaction_model" is better.
+
+```{r IM3}
+anova(three_way_interaction_model, four_way_interaction_model)$"Pr(>F)"[2]
+```
+
+Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the "four_way_interaction_model" is better.
+
+We will leave this model for future comparisons with other potential models.
+
+### Stepwise Model
+
+```{r }
+a = 1
+```
+
+# Results
+
+# Discussion
+
+# Appendix

@@ -402,6 +402,11 @@ summary {
 <li><a href="#methods">Methods</a>
 <ul>
 <li><a href="#data-preprocessing">Data Preprocessing</a></li>
+<li><a href="#model-training">Model Training</a>
+<ul>
+<li><a href="#interaction-model">Interaction Model</a></li>
+<li><a href="#stepwise-model">Stepwise Model</a></li>
+</ul></li>
 </ul></li>
 <li><a href="#results">Results</a></li>
 <li><a href="#discussion">Discussion</a></li>
@@ -409,10 +414,10 @@ summary {
 </ul>
 </div>
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<div id="data-description" class="section level3">
-<h3>Data Description</h3>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<div id="data-description" class="section level2">
+<h2>Data Description</h2>
 <p>Two datasets from the Machine Learning Repository of UCI will be used for this project.</p>
 <p>The first dataset “winequality-red” contains the red wine data in the northern Portugal area, while the second dataset “winequality-white” contains the white wine data.</p>
 <p>For analysis purposes, we classify all the observations based on their color types and merge them into one dataset.</p>
@@ -423,21 +428,24 @@ summary {
 <p>Categorical attributes:</p>
 <p><strong>Type (Red / White)</strong></p>
 </div>
-<div id="project-description" class="section level3">
-<h3>Project Description</h3>
+<div id="project-description" class="section level2">
+<h2>Project Description</h2>
 <p>Wine, as one type of alcohol, has a total consumption of 966 million in the US in 2018.</p>
 <p>Therefore, we find it may be interesting to discover the relationship between wine quality and other attributes.</p>
 <p>Then we will build a model to predict the wine quality based on those attributes.</p>
 <p>In this project, we will use “Quality” as the response variable and all other attributes as predictor variables to discover the most appropriate model.</p>
 </div>
 </div>
-<div id="methods" class="section level2">
-<h2>Methods</h2>
-<div id="data-preprocessing" class="section level3">
-<h3>Data Preprocessing</h3>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
+<div id="data-preprocessing" class="section level2">
+<h2>Data Preprocessing</h2>
 <pre class="r"><code># Load required packages
 library(tidyverse)
-library(caret)</code></pre>
+library(caret)
+
+# Set seed for report consistency
+set.seed(420)</code></pre>
 <pre class="r"><code># Import two datasets
 redwine = read.csv(&quot;winequality-red.csv&quot;)
 whitewine  = read.csv(&quot;winequality-white.csv&quot;)
@@ -466,19 +474,46 @@ str(wine)</code></pre>
 <p>Since the original datasets are clean-version data, we don’t need to perform further data cleansing.</p>
 <pre class="r"><code># Cross-validation
 # 80% of the dataset for training purpose and 20% of the dataset for testing purpose
-random_sample &lt;- createDataPartition(wine$quality, p = 0.8, list = FALSE)
+random_sample = createDataPartition(wine$quality, p = 0.8, list = FALSE)
 training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]</code></pre>
 </div>
+<div id="model-training" class="section level2">
+<h2>Model Training</h2>
+<div id="interaction-model" class="section level3">
+<h3>Interaction Model</h3>
+<pre class="r"><code># Reproduce the training_data and factor the dummy variable &quot;type&quot;
+training_data_IM = training_data
+training_data_IM$type = as.factor(training_data_IM$type)
+four_way_interaction_model = lm(quality ~ .^4, data = training_data_IM)
+three_way_interaction_model = lm(quality ~ .^3, data = training_data_IM)
+two_way_interaction_model = lm(quality ~ .^2, data = training_data_IM)
+one_way_interaction_model = lm(quality ~ ., data = training_data_IM)</code></pre>
+<pre class="r"><code>anova(one_way_interaction_model, two_way_interaction_model)$&quot;Pr(&gt;F)&quot;[2]</code></pre>
+<pre><code>## [1] 3.280385e-70</code></pre>
+<p>Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the “two_way_interaction_model” is better.</p>
+<pre class="r"><code>anova(two_way_interaction_model, three_way_interaction_model)$&quot;Pr(&gt;F)&quot;[2]</code></pre>
+<pre><code>## [1] 1.534412e-29</code></pre>
+<p>Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the “three_way_interaction_model” is better.</p>
+<pre class="r"><code>anova(three_way_interaction_model, four_way_interaction_model)$&quot;Pr(&gt;F)&quot;[2]</code></pre>
+<pre><code>## [1] 1.51584e-21</code></pre>
+<p>Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the “four_way_interaction_model” is better.</p>
+<p>We will leave this model for future comparisons with other potential models.</p>
 </div>
-<div id="results" class="section level2">
-<h2>Results</h2>
+<div id="stepwise-model" class="section level3">
+<h3>Stepwise Model</h3>
+<pre class="r"><code>a = 1</code></pre>
 </div>
-<div id="discussion" class="section level2">
-<h2>Discussion</h2>
 </div>
-<div id="appendix" class="section level2">
-<h2>Appendix</h2>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+</div>
+<div id="discussion" class="section level1">
+<h1>Discussion</h1>
+</div>
+<div id="appendix" class="section level1">
+<h1>Appendix</h1>
 </div>
 
 
