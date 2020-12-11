@@ -23,7 +23,7 @@ Among the 13 variables, 12 variables are numeric attributes and 1 variable is a 
 
 Numeric attributes: 
 
-**Fixed_acidity**, **Redisual_sugar**, **Chlorides**, **Free_sulfur_dioxide**, **PH**, **Sulphates**, **Alcohol**, **Quality**
+**fixed.acidity**, **volatile.acidity**, **citric.acid**, **residual.sugar**, **chlorides**, **free.sulfur.dioxide**, **total.sulfur.dioxide**, **density**, **pH**, **sulphates**, **alcohol**, **quality**   
 
 Categorical attributes:
 
@@ -47,6 +47,7 @@ In this project, we will use "Quality" as the response variable and all other at
 # Load required packages
 library(tidyverse)
 library(caret)
+library(leaps)
 
 # Set seed for report consistency
 set.seed(420)
@@ -112,10 +113,30 @@ Since p-value is smaller than 0.05, we reject the null hypothesis and conclude t
 
 We will leave this model for future comparisons with other potential models.
 
-### Stepwise Model
+### Stepwise/Exhaustive Search Model
+
+```{r SM0}
+# Reproduce the training_data
+training_data_SM = training_data
+
+# stepwise selection model
+start_model = lm(quality ~ 1, data = training_data_SM)
+add_model = lm(quality ~ ., data = training_data_SM)
+
+# stepwise aic model
+stepwise_model_aic = step(start_model, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "both", trace = 0)
+
+#s stepwise bic model
+stepwise_model_bic = step(start_model, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "both", trace = 0, k = log(length(resid(add_model))))
+
+# exhaustive model
+
+```
+
+### To add on
 
 ```{r }
-a = 1
+
 ```
 
 # Results

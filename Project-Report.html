@@ -405,7 +405,8 @@ summary {
 <li><a href="#model-training">Model Training</a>
 <ul>
 <li><a href="#interaction-model">Interaction Model</a></li>
-<li><a href="#stepwise-model">Stepwise Model</a></li>
+<li><a href="#stepwiseexhaustive-search-model">Stepwise/Exhaustive Search Model</a></li>
+<li><a href="#to-add-on">To add on</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#results">Results</a></li>
@@ -424,7 +425,7 @@ summary {
 <p>The complete dataset has 6497 observations with 13 variables.</p>
 <p>Among the 13 variables, 12 variables are numeric attributes and 1 variable is a categorical attribute.</p>
 <p>Numeric attributes:</p>
-<p><strong>Fixed_acidity</strong>, <strong>Redisual_sugar</strong>, <strong>Chlorides</strong>, <strong>Free_sulfur_dioxide</strong>, <strong>PH</strong>, <strong>Sulphates</strong>, <strong>Alcohol</strong>, <strong>Quality</strong></p>
+<p><strong>fixed.acidity</strong>, <strong>volatile.acidity</strong>, <strong>citric.acid</strong>, <strong>residual.sugar</strong>, <strong>chlorides</strong>, <strong>free.sulfur.dioxide</strong>, <strong>total.sulfur.dioxide</strong>, <strong>density</strong>, <strong>pH</strong>, <strong>sulphates</strong>, <strong>alcohol</strong>, <strong>quality</strong></p>
 <p>Categorical attributes:</p>
 <p><strong>Type (Red / White)</strong></p>
 </div>
@@ -443,6 +444,7 @@ summary {
 <pre class="r"><code># Load required packages
 library(tidyverse)
 library(caret)
+library(leaps)
 
 # Set seed for report consistency
 set.seed(420)</code></pre>
@@ -500,9 +502,25 @@ one_way_interaction_model = lm(quality ~ ., data = training_data_IM)</code></pre
 <p>Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the “four_way_interaction_model” is better.</p>
 <p>We will leave this model for future comparisons with other potential models.</p>
 </div>
-<div id="stepwise-model" class="section level3">
-<h3>Stepwise Model</h3>
-<pre class="r"><code>a = 1</code></pre>
+<div id="stepwiseexhaustive-search-model" class="section level3">
+<h3>Stepwise/Exhaustive Search Model</h3>
+<pre class="r"><code># Reproduce the training_data
+training_data_SM = training_data
+
+# stepwise selection model
+start_model = lm(quality ~ 1, data = training_data_SM)
+add_model = lm(quality ~ ., data = training_data_SM)
+
+# stepwise aic model
+stepwise_model_aic = step(start_model, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = &quot;both&quot;, trace = 0)
+
+#s stepwise bic model
+stepwise_model_bic = step(start_model, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = &quot;both&quot;, trace = 0, k = log(length(resid(add_model))))
+
+# exhaustive model</code></pre>
+</div>
+<div id="to-add-on" class="section level3">
+<h3>To add on</h3>
 </div>
 </div>
 </div>
