@@ -113,24 +113,63 @@ Since p-value is smaller than 0.05, we reject the null hypothesis and conclude t
 
 We will leave this model for future comparisons with other potential models.
 
-### Stepwise/Exhaustive Search Model
+### Selection Procedures
 
-```{r SM0}
-# Reproduce the training_data
-training_data_SM = training_data
+```{r results = FALSE}
+# Backward Search
+wine_mod = lm(quality ~ ., data = training_data)
+wine_mod_back_aic = step(wine_mod, direction = "backward")
+```
 
-# stepwise selection model
-start_model = lm(quality ~ 1, data = training_data_SM)
-add_model = lm(quality ~ ., data = training_data_SM)
+```{r}
+coef(wine_mod_back_aic)
+```
 
-# stepwise aic model
-stepwise_model_aic = step(start_model, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "both", trace = 0)
+```{r results = FALSE}
+n = length(resid(wine_mod))
+wine_mod_back_bic = step(wine_mod, direction = "backward", k = log(n))
+```
 
-#s stepwise bic model
-stepwise_model_bic = step(start_model, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "both", trace = 0, k = log(length(resid(add_model))))
+```{r}
+coef(wine_mod_back_bic)
+```
 
-# exhaustive model
+```{r results = FALSE}
+# Forward Search
+wine_mod_Start = lm(quality ~ 1, data = training_data)
+wine_mod_forw_aic = step(wine_mod_Start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward")
+```
 
+```{r}
+coef(wine_mod_forw_aic)
+```
+
+```{r results = FALSE}
+wine_mod_forw_bic = step(wine_mod_Start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward", k = log(n))
+```
+
+```{r}
+coef(wine_mod_forw_bic)
+```
+
+```{r}
+# Exhaustive Search
+all_wine_mod = summary(regsubsets(quality ~ ., data = training_data))
+all_wine_mod$which
+```
+
+```{r}
+best_r2_ind = which.max(all_wine_mod$adjr2)
+all_wine_mod$which[best_r2_ind,]
+```
+
+```{r}
+wine_mod_exhaustive = lm(quality ~ fixed.acidity + volatile.acidity  + residual.sugar + density + pH + sulphates + alcohol + type, data = training_data)
+```
+
+```{r}
+# comparison
+anova(wine_mod_back_aic, wine_mod_back_bic)$"Pr(>F)"[2]
 ```
 
 ### To add on
