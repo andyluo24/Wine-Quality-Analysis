@@ -79,7 +79,173 @@ training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]
 ```
 
-## Model Training
+## Simple Linear Regression Model and Simple Linear Regression Model(Full Model)
+
+```{r}
+model1 = lm(quality ~ free.sulfur.dioxide, data = training_data)
+plot(quality ~ free.sulfur.dioxide, data = training_data, xlab = "Free Sulfur Dioxide", ylab = "Quality of Wines")
+grid()
+curve(predict(model1, data.frame(free.sulfur.dioxide = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model2 = lm(quality ~ total.sulfur.dioxide, data = training_data)
+plot(quality ~ total.sulfur.dioxide, data = training_data, xlab = "Total Sulfur Dioxide", ylab = "Quality of Wines")
+grid()
+curve(predict(model2, data.frame(total.sulfur.dioxide = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model3 = lm(quality ~ fixed.acidity, data = training_data)
+plot(quality ~ fixed.acidity, data = training_data, xlab = "fixed.acidity", ylab = "Quality of Wines")
+grid()
+curve(predict(model3, data.frame(fixed.acidity = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model4 = lm(quality ~ volatile.acidity, data = training_data)
+plot(quality ~ volatile.acidity, data = training_data, xlab = "volatile.acidity", ylab = "Quality of Wines")
+grid()
+curve(predict(model4, data.frame(volatile.acidity = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model5 = lm(quality ~ residual.sugar, data = training_data)
+plot(quality ~ residual.sugar, data = training_data, xlab = "residual.sugar", ylab = "Quality of Wines")
+grid()
+curve(predict(model5, data.frame(residual.sugar = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model6 = lm(quality ~ chlorides, data = training_data)
+plot(quality ~ chlorides, data = training_data, xlab = "chlorides", ylab = "Quality of Wines")
+grid()
+curve(predict(model6, data.frame(chlorides = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model7 = lm(quality ~ density, data = training_data)
+plot(quality ~ density, data = training_data, xlab = "density", ylab = "Quality of Wines")
+grid()
+curve(predict(model7, data.frame(density = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model8 = lm(quality ~ pH, data = training_data)
+plot(quality ~ pH, data = training_data, xlab = "pH", ylab = "Quality of Wines")
+grid()
+curve(predict(model8, data.frame(pH = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model9 = lm(quality ~ sulphates, data = training_data)
+plot(quality ~ sulphates, data = training_data, xlab = "sulphates", ylab = "Quality of Wines")
+grid()
+curve(predict(model9, data.frame(sulphates = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model10 = lm(quality ~ alcohol, data = training_data)
+plot(quality ~ alcohol, data = training_data, xlab = "alcohol", ylab = "Quality of Wines")
+grid()
+curve(predict(model10, data.frame(alcohol = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+```
+```{r}
+summary(model1)
+summary(model2)
+summary(model3)
+summary(model4)
+summary(model5)
+summary(model6)
+summary(model7)
+summary(model8)
+summary(model9)
+summary(model10)
+```
+
+After analyzing the simple linear regression models of each predictor, we find the model uses **quality** as response and **density** as predictor is significant and the slope of the regression line has the largest absolute value. As **density** increases, **quality** decreases. We will compare this model with the full addictive model. 
+
+```{r}
+library(faraway)
+full.add.model = lm(quality ~ ., data = training_data)
+summary(full.add.model)
+```
+
+```{r}
+model_density = model7
+anova(model_density, full.add.model)
+```
+
+By comparing the **model_density** and **full.add.model**, we notice that the p-value is extremely closed to 0. We conclude that we prefer the **full.add.model**, which is the full addictive model. Notwithstanding, the best model is not necessary to include all the predictors. We can conduct a significance test for the full model (above) and we find that although the residual standard error is very small, the adjusted R-squared is just 0.2967. We can declare that the full addictive model is probably not the best model. 
+
+### Variable Selection (Forward, Backward, and Exhaustive Selection with AIC and BIC) 
+
+```{r results = FALSE}
+# Backward Search with AIC
+wine_mod_back_aic = step(full.add.model, direction = "backward", trace = 0)
+coef(wine_mod_back_aic)
+```
+```{r}
+# Backward Search with BIC
+n = length(resid(full.add.model))
+wine_mod_back_bic = step(full.add.model, direction = "backward", trace = 0, k = log(n))
+coef(wine_mod_back_bic)
+```
+
+```{r results = FALSE}
+# Forward Search with AIC
+full.add.model.start = lm(quality ~ 1, data = training_data)
+wine_mod_forw_aic = step(full.add.model.start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward")
+```
+
+```{r}
+coef(wine_mod_forw_aic)
+```
+
+```{r results = FALSE}
+# Forward Selection with BIC
+wine_mod_forw_bic = step(full.add.model.start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward", k = log(n))
+```
+
+```{r}
+coef(wine_mod_forw_bic)
+```
+
+```{r}
+# Exhaustive Search
+all_wine_mod = summary(regsubsets(quality ~ ., data = training_data))
+all_wine_mod$which
+```
+
+```{r}
+(best_r2_ind = which.max(all_wine_mod$adjr2))
+all_wine_mod$which[best_r2_ind,]
+```
+
+```{r}
+# Exhaustive search with best AIC
+p = length(coef(full.add.model))
+n = length(resid(full.add.model))
+best_aic = n * log(all_wine_mod$rss / n) + 2 * (2:p)
+best_aic_ind = which.min(best_aic)
+all_wine_mod$which[best_aic_ind,]
+```
+
+```{r}
+# Exhaustive search with best BIC
+best_bic = n * log(all_wine_mod$rss / n) + log(n) * (2:p)
+best_bic_ind = which.min(best_bic)
+all_wine_mod$which[best_bic_ind,]
+```
+
+By comparing the predictors selected by an exhaustive search, best AIC, and best BIC, we have found that they all select the same predictors, which include **fixed.acidity**, **volatile.acidity**, **residual.sugar**, **density**, **pH**, **sulphates**, **alcohol**, and **type**. 
+
+```{r}
+wine_mod_exhaustive = lm(quality ~ fixed.acidity + volatile.acidity  + residual.sugar + density + pH + sulphates + alcohol + type, data = training_data)
+```
+
+```{r}
+# comparison
+anova(wine_mod_back_aic, wine_mod_back_bic)$"Pr(>F)"[2]
+```
+
+## Quadratic Models
+
+```{r}
+
+```
 
 ### Interaction Model
 
@@ -112,65 +278,6 @@ anova(three_way_interaction_model, four_way_interaction_model)$"Pr(>F)"[2]
 Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the "four_way_interaction_model" is better.
 
 We will leave this model for future comparisons with other potential models.
-
-### Selection Procedures
-
-```{r results = FALSE}
-# Backward Search
-wine_mod = lm(quality ~ ., data = training_data)
-wine_mod_back_aic = step(wine_mod, direction = "backward")
-```
-
-```{r}
-coef(wine_mod_back_aic)
-```
-
-```{r results = FALSE}
-n = length(resid(wine_mod))
-wine_mod_back_bic = step(wine_mod, direction = "backward", k = log(n))
-```
-
-```{r}
-coef(wine_mod_back_bic)
-```
-
-```{r results = FALSE}
-# Forward Search
-wine_mod_Start = lm(quality ~ 1, data = training_data)
-wine_mod_forw_aic = step(wine_mod_Start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward")
-```
-
-```{r}
-coef(wine_mod_forw_aic)
-```
-
-```{r results = FALSE}
-wine_mod_forw_bic = step(wine_mod_Start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward", k = log(n))
-```
-
-```{r}
-coef(wine_mod_forw_bic)
-```
-
-```{r}
-# Exhaustive Search
-all_wine_mod = summary(regsubsets(quality ~ ., data = training_data))
-all_wine_mod$which
-```
-
-```{r}
-best_r2_ind = which.max(all_wine_mod$adjr2)
-all_wine_mod$which[best_r2_ind,]
-```
-
-```{r}
-wine_mod_exhaustive = lm(quality ~ fixed.acidity + volatile.acidity  + residual.sugar + density + pH + sulphates + alcohol + type, data = training_data)
-```
-
-```{r}
-# comparison
-anova(wine_mod_back_aic, wine_mod_back_bic)$"Pr(>F)"[2]
-```
 
 ### To add on
 
