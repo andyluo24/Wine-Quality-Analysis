@@ -79,7 +79,7 @@ training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]
 ```
 
-## Simple Linear Regression Model and Simple Linear Regression Model(Full Model)
+## Simple Linear Regression Model and Multiple Linear Regression Model(Full Model)
 
 ```{r}
 model1 = lm(quality ~ free.sulfur.dioxide, data = training_data)
@@ -177,6 +177,7 @@ By comparing the **model_density** and **full.add.model**, we notice that the p-
 wine_mod_back_aic = step(full.add.model, direction = "backward", trace = 0)
 coef(wine_mod_back_aic)
 ```
+
 ```{r}
 # Backward Search with BIC
 n = length(resid(full.add.model))
@@ -188,9 +189,6 @@ coef(wine_mod_back_bic)
 # Forward Search with AIC
 full.add.model.start = lm(quality ~ 1, data = training_data)
 wine_mod_forw_aic = step(full.add.model.start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward")
-```
-
-```{r}
 coef(wine_mod_forw_aic)
 ```
 
@@ -237,9 +235,27 @@ wine_mod_exhaustive = lm(quality ~ fixed.acidity + volatile.acidity  + residual.
 ```
 
 ```{r}
-# comparison
-anova(wine_mod_back_aic, wine_mod_back_bic)$"Pr(>F)"[2]
+# addictive model comparison
+calc_loocv_rmse = function(model) {
+  sqrt(mean((resid(model) / (1 - hatvalues(model))) ^ 2))
+}
+
+calc_loocv_rmse(full.add.model)
+calc_loocv_rmse(wine_mod_back_aic)
+calc_loocv_rmse(wine_mod_back_bic)
+calc_loocv_rmse(wine_mod_forw_aic)
+calc_loocv_rmse(wine_mod_forw_bic)
+calc_loocv_rmse(wine_mod_exhaustive)
+
+summary(full.add.model)$adj.r.squared
+summary(wine_mod_back_aic)$adj.r.squared
+summary(wine_mod_back_bic)$adj.r.squared
+summary(wine_mod_forw_aic)$adj.r.squared
+summary(wine_mod_forw_bic)$adj.r.squared
+summary(wine_mod_exhaustive)$adj.r.squared
 ```
+
+After comparing the adjusted R-squared and LOOCV RMSE, we reach the conclusion that the model created by backward AIC selection is the best model because it has the lowest LOOCV RMSE and biggest adjusted R-squared.   
 
 ## Quadratic Models
 
