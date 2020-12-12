@@ -39,7 +39,7 @@ Then we will build a model to predict the wine quality based on those attributes
   
 In this project, we will use "Quality" as the response variable and all other attributes as predictor variables to discover the most appropriate model.
 
-# Methods
+# Analysis
 
 ## Data Preprocessing
 
@@ -48,7 +48,6 @@ In this project, we will use "Quality" as the response variable and all other at
 library(tidyverse)
 library(caret)
 library(leaps)
-
 # Set seed for report consistency
 set.seed(420)
 ```
@@ -57,7 +56,6 @@ set.seed(420)
 # Import two datasets
 redwine = read.csv("winequality-red.csv")
 whitewine  = read.csv("winequality-white.csv")
-
 # Add Classification "red" and "white" and merge them as one dataset
 redwine$type = "red"
 whitewine$type = "white"
@@ -67,9 +65,11 @@ str(wine)
 
 There are 6497 observations with 13 variables in this combined dataset.
 
-Among 13 variables, 12 variables are numeric attributes and 1 variable is catergorical attribute.
+Among 13 variables, 12 variables are numeric attributes and 1 variable is categorical attribute.
 
 Since the original datasets are clean-version data, we don't need to perform further data cleansing.
+
+Next, we randomly chose 80% of the data as the training data where we apply different models on. The 20% of the data is validation data, which is used to test the accuracy of our final model. 
 
 ```{r dp2}
 # Cross-validation
@@ -79,7 +79,11 @@ training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]
 ```
 
-## Simple Linear Regression Model and Multiple Linear Regression Model(Full Model)
+## Simple Linear Regression Model
+
+First, we try to use simple linear regression to check if the wine quality is closely connected to one attribute.     
+ 
+Here is the graph and regression line for the 10 simple linear regression model.
 
 ```{r}
 model1 = lm(quality ~ free.sulfur.dioxide, data = training_data)
@@ -87,75 +91,78 @@ plot(quality ~ free.sulfur.dioxide, data = training_data, xlab = "Free Sulfur Di
 grid()
 curve(predict(model1, data.frame(free.sulfur.dioxide = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
-
 model2 = lm(quality ~ total.sulfur.dioxide, data = training_data)
 plot(quality ~ total.sulfur.dioxide, data = training_data, xlab = "Total Sulfur Dioxide", ylab = "Quality of Wines")
 grid()
 curve(predict(model2, data.frame(total.sulfur.dioxide = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
-
 model3 = lm(quality ~ fixed.acidity, data = training_data)
 plot(quality ~ fixed.acidity, data = training_data, xlab = "fixed.acidity", ylab = "Quality of Wines")
 grid()
 curve(predict(model3, data.frame(fixed.acidity = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
-
 model4 = lm(quality ~ volatile.acidity, data = training_data)
 plot(quality ~ volatile.acidity, data = training_data, xlab = "volatile.acidity", ylab = "Quality of Wines")
 grid()
 curve(predict(model4, data.frame(volatile.acidity = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
-
 model5 = lm(quality ~ residual.sugar, data = training_data)
 plot(quality ~ residual.sugar, data = training_data, xlab = "residual.sugar", ylab = "Quality of Wines")
 grid()
 curve(predict(model5, data.frame(residual.sugar = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
-
 model6 = lm(quality ~ chlorides, data = training_data)
 plot(quality ~ chlorides, data = training_data, xlab = "chlorides", ylab = "Quality of Wines")
 grid()
 curve(predict(model6, data.frame(chlorides = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
-
 model7 = lm(quality ~ density, data = training_data)
 plot(quality ~ density, data = training_data, xlab = "density", ylab = "Quality of Wines")
 grid()
 curve(predict(model7, data.frame(density = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
-
 model8 = lm(quality ~ pH, data = training_data)
 plot(quality ~ pH, data = training_data, xlab = "pH", ylab = "Quality of Wines")
 grid()
 curve(predict(model8, data.frame(pH = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
-
 model9 = lm(quality ~ sulphates, data = training_data)
 plot(quality ~ sulphates, data = training_data, xlab = "sulphates", ylab = "Quality of Wines")
 grid()
 curve(predict(model9, data.frame(sulphates = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
-
 model10 = lm(quality ~ alcohol, data = training_data)
 plot(quality ~ alcohol, data = training_data, xlab = "alcohol", ylab = "Quality of Wines")
 grid()
 curve(predict(model10, data.frame(alcohol = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
 ```
+From the above graphs, we find that all those models are not performing well. It's hard to notice a conclusive pattern.   
+
+Next, we will find the residual standard error of each model to select the best one.
+
+
 ```{r}
-summary(model1)
-summary(model2)
-summary(model3)
-summary(model4)
-summary(model5)
-summary(model6)
-summary(model7)
-summary(model8)
-summary(model9)
-summary(model10)
+summary(model1)$sigma
+summary(model2)$sigma
+summary(model3)$sigma
+summary(model4)$sigma
+summary(model5)$sigma
+summary(model6)$sigma
+summary(model7)$sigma
+summary(model8)$sigma
+summary(model9)$sigma
+summary(model10)$sigma
 ```
 
-After analyzing the simple linear regression models of each predictor, we find the model uses **quality** as response and **density** as predictor is significant and the slope of the regression line has the largest absolute value. As **density** increases, **quality** decreases. We will compare this model with the full addictive model. 
+
+We find the model uses **quality** as response and **alcohol** as predictor is the best simple linear model. 
+
+## Multiple Linear Regression Model
+
+Since we now know that the simple linear regression models don't work well, we will see the performance of multiple linear regression models.
+
+### Full additive model
 
 ```{r}
 library(faraway)
@@ -163,35 +170,43 @@ full.add.model = lm(quality ~ ., data = training_data)
 summary(full.add.model)
 ```
 
-```{r}
-model_density = model7
-anova(model_density, full.add.model)
-```
-
-By comparing the **model_density** and **full.add.model**, we notice that the p-value is extremely closed to 0. We conclude that we prefer the **full.add.model**, which is the full addictive model. Notwithstanding, the best model is not necessary to include all the predictors. We can conduct a significance test for the full model (above) and we find that although the residual standard error is very small, the adjusted R-squared is just 0.2967. We can declare that the full addictive model is probably not the best model. 
+We conduct a significance test for the full model (above) and we find that although the residual standard error is very small, the adjusted R-squared is just 0.2967. We can declare that the full addictive model is probably not the best model. 
 
 ### Variable Selection (Forward, Backward, and Exhaustive Selection with AIC and BIC) 
 
+
+1. Backward Search with AIC
 ```{r results = FALSE}
 # Backward Search with AIC
 wine_mod_back_aic = step(full.add.model, direction = "backward", trace = 0)
-coef(wine_mod_back_aic)
 ```
 
 ```{r}
+coef(wine_mod_back_aic)
+```
+
+2. Backward Search with BIC
+```{r results = FALSE}
 # Backward Search with BIC
 n = length(resid(full.add.model))
 wine_mod_back_bic = step(full.add.model, direction = "backward", trace = 0, k = log(n))
+```
+
+```{r}
 coef(wine_mod_back_bic)
 ```
 
+3. Forward Search with AIC
 ```{r results = FALSE}
 # Forward Search with AIC
 full.add.model.start = lm(quality ~ 1, data = training_data)
 wine_mod_forw_aic = step(full.add.model.start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward")
-coef(wine_mod_forw_aic)
 ```
 
+```{r}
+coef(wine_mod_forw_aic)
+```
+4. Forward Selection with BIC
 ```{r results = FALSE}
 # Forward Selection with BIC
 wine_mod_forw_bic = step(full.add.model.start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward", k = log(n))
@@ -201,13 +216,10 @@ wine_mod_forw_bic = step(full.add.model.start, scope = quality ~ fixed.acidity +
 coef(wine_mod_forw_bic)
 ```
 
+5. Exhaustive Search
 ```{r}
 # Exhaustive Search
 all_wine_mod = summary(regsubsets(quality ~ ., data = training_data))
-all_wine_mod$which
-```
-
-```{r}
 (best_r2_ind = which.max(all_wine_mod$adjr2))
 all_wine_mod$which[best_r2_ind,]
 ```
@@ -234,8 +246,15 @@ By comparing the predictors selected by an exhaustive search, best AIC, and best
 wine_mod_exhaustive = lm(quality ~ fixed.acidity + volatile.acidity  + residual.sugar + density + pH + sulphates + alcohol + type, data = training_data)
 ```
 
+
+## Quadratic Models
+
+We will fit some more complex models. We want to start with a big model and use backwards AIC to reduce the number of parameters.   
+
+Before we generate a big model, we want to compare and get the best multiple linear regression model. 
+
 ```{r}
-# addictive model comparison
+# additive model comparison
 calc_loocv_rmse = function(model) {
   sqrt(mean((resid(model) / (1 - hatvalues(model))) ^ 2))
 }
@@ -255,13 +274,26 @@ summary(wine_mod_forw_bic)$adj.r.squared
 summary(wine_mod_exhaustive)$adj.r.squared
 ```
 
-After comparing the adjusted R-squared and LOOCV RMSE, we reach the conclusion that the model created by backward AIC selection is the best model because it has the lowest LOOCV RMSE and biggest adjusted R-squared.   
+After comparing the adjusted R-squared and LOOCV RMSE, we reach the conclusion that the model created by backward AIC selection is the best model because it has the lowest LOOCV RMSE and biggest adjusted R-squared. 
 
-## Quadratic Models
+Then we can use the predictors in backward AIC model to generate a quadratic model.
+```{r}
+coef(wine_mod_back_aic)
+```
 
 ```{r}
-
+big_fit = lm(quality ~ . ^ 2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
+fit_aic = step(big_fit, direction = "backward", trace = 0)
 ```
+
+```{r}
+length(coef(fit_aic))
+```
+
+```{r}
+summary(fit_aic)$r.sq
+```
+
 
 ### Interaction Model
 
@@ -298,7 +330,6 @@ We will leave this model for future comparisons with other potential models.
 ### To add on
 
 ```{r }
-
 ```
 
 # Results
