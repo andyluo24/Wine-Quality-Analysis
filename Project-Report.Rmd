@@ -103,50 +103,65 @@ plot(quality ~ free.sulfur.dioxide, data = training_data, xlab = "Free Sulfur Di
 grid()
 curve(predict(model1, data.frame(free.sulfur.dioxide = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
+
 model2 = lm(quality ~ total.sulfur.dioxide, data = training_data)
 plot(quality ~ total.sulfur.dioxide, data = training_data, xlab = "Total Sulfur Dioxide", ylab = "Quality of Wines")
 grid()
 curve(predict(model2, data.frame(total.sulfur.dioxide = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
+
 model3 = lm(quality ~ fixed.acidity, data = training_data)
 plot(quality ~ fixed.acidity, data = training_data, xlab = "fixed.acidity", ylab = "Quality of Wines")
 grid()
 curve(predict(model3, data.frame(fixed.acidity = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
+
 model4 = lm(quality ~ volatile.acidity, data = training_data)
 plot(quality ~ volatile.acidity, data = training_data, xlab = "volatile.acidity", ylab = "Quality of Wines")
 grid()
 curve(predict(model4, data.frame(volatile.acidity = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
+
 model5 = lm(quality ~ residual.sugar, data = training_data)
 plot(quality ~ residual.sugar, data = training_data, xlab = "residual.sugar", ylab = "Quality of Wines")
 grid()
 curve(predict(model5, data.frame(residual.sugar = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
+
 model6 = lm(quality ~ chlorides, data = training_data)
 plot(quality ~ chlorides, data = training_data, xlab = "chlorides", ylab = "Quality of Wines")
 grid()
 curve(predict(model6, data.frame(chlorides = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
+
 model7 = lm(quality ~ density, data = training_data)
 plot(quality ~ density, data = training_data, xlab = "density", ylab = "Quality of Wines")
 grid()
 curve(predict(model7, data.frame(density = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
+
 model8 = lm(quality ~ pH, data = training_data)
 plot(quality ~ pH, data = training_data, xlab = "pH", ylab = "Quality of Wines")
 grid()
 curve(predict(model8, data.frame(pH = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
+
 model9 = lm(quality ~ sulphates, data = training_data)
 plot(quality ~ sulphates, data = training_data, xlab = "sulphates", ylab = "Quality of Wines")
 grid()
 curve(predict(model9, data.frame(sulphates = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
+
 model10 = lm(quality ~ alcohol, data = training_data)
 plot(quality ~ alcohol, data = training_data, xlab = "alcohol", ylab = "Quality of Wines")
 grid()
 curve(predict(model10, data.frame(alcohol = x), type = "response"), 
+      add = TRUE, col = "dodgerblue", lty = 2)
+
+model11 = lm(quality ~ citric.acid, data = training_data)
+plot(quality ~ citric.acid, data = training_data, xlab = "citric.acid", ylab = "Quality of Wines")
+grid()
+curve(predict(model11, data.frame(citric.acid = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
 ```
 From the above graphs, we find that all those models are not performing well. It's hard to notice a conclusive pattern.   
@@ -155,18 +170,10 @@ Next, we will find the residual standard error of each model to select the best 
 
 
 ```{r}
-summary(model1)$sigma
-summary(model2)$sigma
-summary(model3)$sigma
-summary(model4)$sigma
-summary(model5)$sigma
-summary(model6)$sigma
-summary(model7)$sigma
-summary(model8)$sigma
-summary(model9)$sigma
-summary(model10)$sigma
-```
+sigma = c(summary(model1)$sigma, summary(model2)$sigma, summary(model3)$sigma, summary(model4)$sigma, summary(model5)$sigma, summary(model6)$sigma, summary(model7)$sigma, summary(model8)$sigma, summary(model9)$sigma, summary(model10)$sigma, summary(model11)$sigma)
 
+which.min(sigma)
+```
 
 We find the model uses **quality** as response and **alcohol** as predictor is the best simple linear model. 
 
@@ -309,29 +316,29 @@ summary(fit_aic)$r.sq
 
 ### Interaction Model
 
-```{r}
+```{r, eval=F}
 two_way_interaction_model = lm(quality ~ .^2, data = training_data)
 fit_aic_2 = step(two_way_interaction_model, direction = "backward", trace = 0)
 ```
 
-```{r}
+```{r, eval=F}
 length(coef(fit_aic_2))
 ```
 
-```{r}
+```{r, eval=F}
 summary(fit_aic_2)$r.sq
 ```
 
-```{r}
+```{r, eval=F}
 big_fit = lm(quality ~ . ^ 2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
 fit_aic_3 = step(big_fit, direction = "backward", trace = 0)
 ```
 
-```{r}
+```{r, eval=F}
 length(coef(fit_aic_3))
 ```
 
-```{r}
+```{r, eval=F}
 summary(fit_aic_3)$r.sq
 ```
 
