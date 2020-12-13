@@ -410,7 +410,10 @@ summary {
 <li><a href="#quadratic-models">Quadratic Models</a></li>
 <li><a href="#interaction-model">Interaction Model</a></li>
 </ul></li>
-<li><a href="#classification">Classification</a></li>
+<li><a href="#classification">Classification</a>
+<ul>
+<li><a href="#multi-class-support-vector-machine">Multi-class Support Vector Machine</a></li>
+</ul></li>
 </ul></li>
 <li><a href="#results">Results</a></li>
 <li><a href="#discussion">Discussion</a></li>
@@ -461,9 +464,10 @@ summary {
 <h2>Data Preprocessing</h2>
 <pre class="r"><code># Load required packages
 library(tidyverse)
-library(caret)
 library(leaps)
 library(faraway)
+library(caret)
+library(e1071)
 # Set seed for report consistency
 set.seed(420)</code></pre>
 <pre class="r"><code># Import two datasets
@@ -799,6 +803,48 @@ cbind(rmse, rsqr)</code></pre>
 </div>
 <div id="classification" class="section level2">
 <h2>Classification</h2>
+<p>Given the nature of the response variable, we may expect that linear regression model will not perform very well in this case.</p>
+<p>Therefore, we’d like to consider some classification methods.</p>
+<div id="multi-class-support-vector-machine" class="section level3">
+<h3>Multi-class Support Vector Machine</h3>
+<pre class="r"><code>training_data$quality = as.factor(training_data$quality)
+
+svm_model = svm(quality ~., data = training_data, method = &quot;C-classification&quot;, kernal = &quot;radial&quot;, gamma = 0.9, cost = 15)
+summary(svm_model)</code></pre>
+<pre><code>## 
+## Call:
+## svm(formula = quality ~ ., data = training_data, method = &quot;C-classification&quot;, 
+##     kernal = &quot;radial&quot;, gamma = 0.9, cost = 15)
+## 
+## 
+## Parameters:
+##    SVM-Type:  C-classification 
+##  SVM-Kernel:  radial 
+##        cost:  15 
+## 
+## Number of Support Vectors:  4450
+## 
+##  ( 1408 1924 768 175 145 26 4 )
+## 
+## 
+## Number of Classes:  7 
+## 
+## Levels: 
+##  3 4 5 6 7 8 9</code></pre>
+<p>We use the default method and kernal in this case and the model finds 4450 support vectors distributed across the classes.</p>
+<p>1408 for “3”, 1924 for “4”, 768 for “5”, 175 for “6”, 145 for “7”, 26 for “8”, and 4 for “9”.</p>
+<pre class="r"><code>prediction = predict(svm_model, testing_data)
+confusion_matrix = table(testing_data$quality, prediction)
+correctPred = 0
+for (i in 1:nrow(confusion_matrix)) {
+  correctPred = correctPred + confusion_matrix[i, i]
+}
+accuracy = correctPred / nrow(testing_data)
+accuracy</code></pre>
+<pre><code>## [1] 0.6625578</code></pre>
+<p>We use the testing data we split above to evaluate our model.</p>
+<p>The accuracy for this model is 66.26%.</p>
+</div>
 </div>
 </div>
 <div id="results" class="section level1">

@@ -57,9 +57,10 @@ In this project, we will use "Quality" as the response variable and all other at
 ```{r dp0, message = FALSE}
 # Load required packages
 library(tidyverse)
-library(caret)
 library(leaps)
 library(faraway)
+library(caret)
+library(e1071)
 # Set seed for report consistency
 set.seed(420)
 ```
@@ -349,8 +350,37 @@ Therefore, we choose the both_aic model as our interaction model.
 
 ## Classification
 
-```{r }
+Given the nature of the response variable, we may expect that linear regression model will not perform very well in this case.
+
+Therefore, we'd like to consider some classification methods.
+
+### Multi-class Support Vector Machine
+
+```{r}
+training_data$quality = as.factor(training_data$quality)
+
+svm_model = svm(quality ~., data = training_data, method = "C-classification", kernal = "radial", gamma = 0.9, cost = 15)
+summary(svm_model)
 ```
+
+We use the default method and kernal in this case and the model finds 4450 support vectors distributed across the classes.
+
+1408 for "3", 1924 for "4", 768 for "5", 175 for "6", 145 for "7", 26 for "8", and 4 for "9".
+
+```{r}
+prediction = predict(svm_model, testing_data)
+confusion_matrix = table(testing_data$quality, prediction)
+correctPred = 0
+for (i in 1:nrow(confusion_matrix)) {
+  correctPred = correctPred + confusion_matrix[i, i]
+}
+accuracy = correctPred / nrow(testing_data)
+accuracy
+```
+
+We use the testing data we split above to evaluate our model.
+
+The accuracy for this model is 66.26%.
 
 # Results
 
