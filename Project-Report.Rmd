@@ -59,6 +59,7 @@ In this project, we will use "Quality" as the response variable and all other at
 library(tidyverse)
 library(caret)
 library(leaps)
+library(faraway)
 # Set seed for report consistency
 set.seed(420)
 ```
@@ -164,6 +165,7 @@ grid()
 curve(predict(model11, data.frame(citric.acid = x), type = "response"), 
       add = TRUE, col = "dodgerblue", lty = 2)
 ```
+
 From the above graphs, we find that all those models are not performing well. It's hard to notice a conclusive pattern.   
 
 Next, we will find the residual standard error of each model to select the best one.
@@ -184,14 +186,13 @@ Since we now know that the simple linear regression models don't work well, we w
 ### Full additive model
 
 ```{r}
-library(faraway)
 full.add.model = lm(quality ~ ., data = training_data)
 summary(full.add.model)
 ```
 
 We conduct a significance test for the full model (above) and we find that although the residual standard error is very small, the adjusted R-squared is just 0.2967. We can declare that the full addictive model is probably not the best model. 
 
-### Variable Selection (Forward, Backward, and Exhaustive Selection with AIC and BIC) 
+### Variable Selection (Forward / Backward / Exhaustive Selection with AIC & BIC) 
 
 
 1. Backward Search with AIC
@@ -239,11 +240,11 @@ coef(wine_mod_forw_bic)
 ```{r}
 # Exhaustive Search
 all_wine_mod = summary(regsubsets(quality ~ ., data = training_data))
-(best_r2_ind = which.max(all_wine_mod$adjr2))
+best_r2_ind = which.max(all_wine_mod$adjr2)
 all_wine_mod$which[best_r2_ind,]
 ```
 
-```{r}
+```{r, warning=F}
 # Exhaustive search with best AIC
 p = length(coef(full.add.model))
 n = length(resid(full.add.model))
@@ -268,7 +269,9 @@ wine_mod_exhaustive = lm(quality ~ fixed.acidity + volatile.acidity  + residual.
 
 ## Quadratic Models
 
-We will fit some more complex models. We want to start with a big model and use backwards AIC to reduce the number of parameters.   
+We will fit some more complex models. 
+
+We want to start with a big model and use backwards AIC to reduce the number of parameters.   
 
 Before we generate a big model, we want to compare and get the best multiple linear regression model. 
 
@@ -278,19 +281,11 @@ calc_loocv_rmse = function(model) {
   sqrt(mean((resid(model) / (1 - hatvalues(model))) ^ 2))
 }
 
-calc_loocv_rmse(full.add.model)
-calc_loocv_rmse(wine_mod_back_aic)
-calc_loocv_rmse(wine_mod_back_bic)
-calc_loocv_rmse(wine_mod_forw_aic)
-calc_loocv_rmse(wine_mod_forw_bic)
-calc_loocv_rmse(wine_mod_exhaustive)
+rmse = c(calc_loocv_rmse(full.add.model), calc_loocv_rmse(wine_mod_back_aic), calc_loocv_rmse(wine_mod_back_bic), calc_loocv_rmse(wine_mod_forw_aic), calc_loocv_rmse(wine_mod_forw_bic), calc_loocv_rmse(wine_mod_exhaustive))
 
-summary(full.add.model)$adj.r.squared
-summary(wine_mod_back_aic)$adj.r.squared
-summary(wine_mod_back_bic)$adj.r.squared
-summary(wine_mod_forw_aic)$adj.r.squared
-summary(wine_mod_forw_bic)$adj.r.squared
-summary(wine_mod_exhaustive)$adj.r.squared
+r.square = c(summary(full.add.model)$adj.r.squared, summary(wine_mod_back_aic)$adj.r.squared, summary(wine_mod_back_bic)$adj.r.squared, summary(wine_mod_forw_aic)$adj.r.squared, summary(wine_mod_forw_bic)$adj.r.squared, summary(wine_mod_exhaustive)$adj.r.squared)
+
+rbind(rmse, r.square)
 ```
 
 After comparing the adjusted R-squared and LOOCV RMSE, we reach the conclusion that the model created by backward AIC selection is the best model because it has the lowest LOOCV RMSE and biggest adjusted R-squared. 
@@ -313,6 +308,7 @@ length(coef(fit_aic))
 summary(fit_aic)$r.sq
 ```
 
+There are total 18 parameters in this model, which has a r.square = 0.3193.
 
 ### Interaction Model
 
