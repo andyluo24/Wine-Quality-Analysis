@@ -742,10 +742,14 @@ rmse = c(calc_loocv_rmse(full.add.model), calc_loocv_rmse(wine_mod_back_aic), ca
 
 r.square = c(summary(full.add.model)$adj.r.squared, summary(wine_mod_back_aic)$adj.r.squared, summary(wine_mod_back_bic)$adj.r.squared, summary(wine_mod_forw_aic)$adj.r.squared, summary(wine_mod_forw_bic)$adj.r.squared, summary(wine_mod_exhaustive)$adj.r.squared)
 
-rbind(rmse, r.square)</code></pre>
-<pre><code>##               [,1]      [,2]      [,3]      [,4]      [,5]      [,6]
-## rmse     0.7358895 0.7357624 0.7365044 0.7357624 0.7367241 0.7370047
-## r.square 0.2966797 0.2968041 0.2952283 0.2968041 0.2942325 0.2935492</code></pre>
+cbind(rmse, r.square)</code></pre>
+<pre><code>##           rmse  r.square
+## [1,] 0.7358895 0.2966797
+## [2,] 0.7357624 0.2968041
+## [3,] 0.7365044 0.2952283
+## [4,] 0.7357624 0.2968041
+## [5,] 0.7367241 0.2942325
+## [6,] 0.7370047 0.2935492</code></pre>
 <p>After comparing the adjusted R-squared and LOOCV RMSE, we reach the conclusion that the model created by backward AIC selection is the best model because it has the lowest LOOCV RMSE and biggest adjusted R-squared.</p>
 <p>Then we can use the predictors in backward AIC model to generate a quadratic model.</p>
 <pre class="r"><code>coef(wine_mod_back_aic)</code></pre>
@@ -766,14 +770,33 @@ fit_aic = step(big_fit, direction = &quot;backward&quot;, trace = 0)</code></pre
 <p>There are total 18 parameters in this model, which has a r.square = 0.3193.</p>
 <div id="interaction-model" class="section level3">
 <h3>Interaction Model</h3>
-<pre class="r"><code>two_way_interaction_model = lm(quality ~ .^2, data = training_data)
-fit_aic_2 = step(two_way_interaction_model, direction = &quot;backward&quot;, trace = 0)</code></pre>
-<pre class="r"><code>length(coef(fit_aic_2))</code></pre>
-<pre class="r"><code>summary(fit_aic_2)$r.sq</code></pre>
-<pre class="r"><code>big_fit = lm(quality ~ . ^ 2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
-fit_aic_3 = step(big_fit, direction = &quot;backward&quot;, trace = 0)</code></pre>
-<pre class="r"><code>length(coef(fit_aic_3))</code></pre>
-<pre class="r"><code>summary(fit_aic_3)$r.sq</code></pre>
+<p>As the model shown above, the first-order terms include all numeric variables besides the response and “critric.acid”.</p>
+<p>Therefore, we keep the remaining variables and build a new model by adding the two-way interactions.</p>
+<pre class="r"><code>two_way_interaction_model = lm(quality ~ .^2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
+
+n = length(resid(two_way_interaction_model))
+both_start = lm(quality ~ 1, data = training_data)
+
+# fit stepwise aic model
+both_aic = step(
+  both_start, 
+  scope = quality ~ .^2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2),
+  direction = &quot;both&quot;, trace = 0)
+
+# fit stepwise bic model
+both_bic = step(
+  both_start, 
+  scope = quality ~ .^2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2),
+  direction = &quot;both&quot;, k = log(n), trace = 0)</code></pre>
+<p>We then want to evaluate the efficiency of these two models.</p>
+<pre class="r"><code>rmse = c(calc_loocv_rmse(both_aic), calc_loocv_rmse(both_bic))
+rsqr = c(summary(both_aic)$r.square, summary(both_bic)$r.square)
+cbind(rmse, rsqr)</code></pre>
+<pre><code>##           rmse      rsqr
+## [1,] 0.7494708 0.2729217
+## [2,] 0.7495520 0.2718907</code></pre>
+<p>both_aic model has the greatest r.square and smallest rmse.</p>
+<p>Therefore, we choose the both_aic model as our interaction model.</p>
 </div>
 <div id="to-add-on" class="section level3">
 <h3>To add on</h3>
