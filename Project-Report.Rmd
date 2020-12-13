@@ -11,7 +11,7 @@ output:
 
 ## Data Description
 
-Two datasets from the Machine Learning Repository of UCI will be used for this project.
+Two [datasets](https://archive.ics.uci.edu/ml/datasets/wine+quality) from the Machine Learning Repository of UCI will be used for this project.
 
 The first dataset "winequality-red" contains the red wine data in the northern Portugal area, while the second dataset "winequality-white" contains the white wine data. 
 
@@ -23,11 +23,22 @@ Among the 13 variables, 12 variables are numeric attributes and 1 variable is a 
 
 Numeric attributes: 
 
-**fixed.acidity**, **volatile.acidity**, **citric.acid**, **residual.sugar**, **chlorides**, **free.sulfur.dioxide**, **total.sulfur.dioxide**, **density**, **pH**, **sulphates**, **alcohol**, **quality**   
+- `fixed.acidity`: Most acids involved with wine or fixed or nonvolatile (do not evaporate readily).
+- `volatile.acidity`: The amount of acetic acid in wine, which at too high of levels can lead to an unpleasant, vinegar taste.
+- `citric.acid`: Found in small quantities, citric acid can add 'freshness' and flavor to wines.
+- `residual.sugar`: The amount of sugar remaining after fermentation stops.
+- `chlorides`: The amount of salt in the wine.
+- `free.sulfur.dioxide`: The free form of SO2 exists in equilibrium between molecular SO2 (as a dissolved gas) and bisulfite ion.
+- `total.sulfur.dioxide`: Amount of free and bound forms of S02;in low concentrations, SO2 is mostly undetectable in wine, but at free SO2 concentrations over 50 ppm, SO2 becomes evident in the nose and taste of wine.
+- `density`: The density of water is close to that of water depending on the percent alcohol and sugar content.
+- `pH`: Describes how acidic or basic a wine is on a scale from 0 (very acidic) to 14 (very basic);most wines are between 3-4 on the pH scale.
+- `sulphates`: A wine additive which can contribute to sulfur dioxide gas (S02) levels, which acts as an antimicrobial and antioxidant.
+- `alcohol`: The percent alcohol content of the wine.
+- `quality`: Output variable.   
 
 Categorical attributes:
 
-**Type (Red / White)**
+- `Type`: Red / White.
 
 ## Project Description
 
