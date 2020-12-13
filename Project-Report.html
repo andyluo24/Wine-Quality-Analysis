@@ -465,6 +465,7 @@ str(wine)</code></pre>
 <p>Next, we randomly chose 80% of the data as the training data where we apply different models on. The 20% of the data is validation data, which is used to test the accuracy of our final model.</p>
 <pre class="r"><code># Cross-validation
 # 80% of the dataset for training purpose and 20% of the dataset for testing purpose
+wine$type = as.factor(wine$type)
 random_sample = createDataPartition(wine$quality, p = 0.8, list = FALSE)
 training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]</code></pre>
@@ -758,31 +759,26 @@ calc_loocv_rmse(full.add.model)</code></pre>
 ##         -0.001065835        -91.919289673          0.434731911 
 ##            sulphates              alcohol            typewhite 
 ##          0.681403147          0.242718858         -0.381901782</code></pre>
-<pre class="r"><code>big_fit = lm(quality ~ . ^ 2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
+<pre class="r"><code>big_fit = lm(quality ~ . + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
 fit_aic = step(big_fit, direction = &quot;backward&quot;, trace = 0)</code></pre>
 <pre class="r"><code>length(coef(fit_aic))</code></pre>
-<pre><code>## [1] 56</code></pre>
+<pre><code>## [1] 18</code></pre>
 <pre class="r"><code>summary(fit_aic)$r.sq</code></pre>
-<pre><code>## [1] 0.3728079</code></pre>
+<pre><code>## [1] 0.3192827</code></pre>
 <div id="interaction-model" class="section level3">
 <h3>Interaction Model</h3>
-<pre class="r"><code># Reproduce the training_data and factor the dummy variable &quot;type&quot;
-training_data_IM = training_data
-training_data_IM$type = as.factor(training_data_IM$type)
-four_way_interaction_model = lm(quality ~ .^4, data = training_data_IM)
-three_way_interaction_model = lm(quality ~ .^3, data = training_data_IM)
-two_way_interaction_model = lm(quality ~ .^2, data = training_data_IM)
-one_way_interaction_model = lm(quality ~ ., data = training_data_IM)</code></pre>
-<pre class="r"><code>anova(one_way_interaction_model, two_way_interaction_model)$&quot;Pr(&gt;F)&quot;[2]</code></pre>
-<pre><code>## [1] 3.280385e-70</code></pre>
-<p>Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the “two_way_interaction_model” is better.</p>
-<pre class="r"><code>anova(two_way_interaction_model, three_way_interaction_model)$&quot;Pr(&gt;F)&quot;[2]</code></pre>
-<pre><code>## [1] 1.534412e-29</code></pre>
-<p>Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the “three_way_interaction_model” is better.</p>
-<pre class="r"><code>anova(three_way_interaction_model, four_way_interaction_model)$&quot;Pr(&gt;F)&quot;[2]</code></pre>
-<pre><code>## [1] 1.51584e-21</code></pre>
-<p>Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the “four_way_interaction_model” is better.</p>
-<p>We will leave this model for future comparisons with other potential models.</p>
+<pre class="r"><code>two_way_interaction_model = lm(quality ~ .^2, data = training_data)
+fit_aic_2 = step(two_way_interaction_model, direction = &quot;backward&quot;, trace = 0)</code></pre>
+<pre class="r"><code>length(coef(fit_aic_2))</code></pre>
+<pre><code>## [1] 49</code></pre>
+<pre class="r"><code>summary(fit_aic_2)$r.sq</code></pre>
+<pre><code>## [1] 0.3629581</code></pre>
+<pre class="r"><code>big_fit = lm(quality ~ . ^ 2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
+fit_aic_3 = step(big_fit, direction = &quot;backward&quot;, trace = 0)</code></pre>
+<pre class="r"><code>length(coef(fit_aic_3))</code></pre>
+<pre><code>## [1] 56</code></pre>
+<pre class="r"><code>summary(fit_aic_3)$r.sq</code></pre>
+<pre><code>## [1] 0.3728079</code></pre>
 </div>
 <div id="to-add-on" class="section level3">
 <h3>To add on</h3>

@@ -74,6 +74,7 @@ Next, we randomly chose 80% of the data as the training data where we apply diff
 ```{r dp2}
 # Cross-validation
 # 80% of the dataset for training purpose and 20% of the dataset for testing purpose
+wine$type = as.factor(wine$type)
 random_sample = createDataPartition(wine$quality, p = 0.8, list = FALSE)
 training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]
@@ -282,7 +283,7 @@ coef(wine_mod_back_aic)
 ```
 
 ```{r}
-big_fit = lm(quality ~ . ^ 2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
+big_fit = lm(quality ~ . + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
 fit_aic = step(big_fit, direction = "backward", trace = 0)
 ```
 
@@ -297,35 +298,31 @@ summary(fit_aic)$r.sq
 
 ### Interaction Model
 
-```{r IM0}
-# Reproduce the training_data and factor the dummy variable "type"
-training_data_IM = training_data
-training_data_IM$type = as.factor(training_data_IM$type)
-four_way_interaction_model = lm(quality ~ .^4, data = training_data_IM)
-three_way_interaction_model = lm(quality ~ .^3, data = training_data_IM)
-two_way_interaction_model = lm(quality ~ .^2, data = training_data_IM)
-one_way_interaction_model = lm(quality ~ ., data = training_data_IM)
+```{r}
+two_way_interaction_model = lm(quality ~ .^2, data = training_data)
+fit_aic_2 = step(two_way_interaction_model, direction = "backward", trace = 0)
 ```
 
-```{r IM1}
-anova(one_way_interaction_model, two_way_interaction_model)$"Pr(>F)"[2]
+```{r}
+length(coef(fit_aic_2))
 ```
 
-Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the "two_way_interaction_model" is better.
-
-```{r IM2}
-anova(two_way_interaction_model, three_way_interaction_model)$"Pr(>F)"[2]
+```{r}
+summary(fit_aic_2)$r.sq
 ```
 
-Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the "three_way_interaction_model" is better.
-
-```{r IM3}
-anova(three_way_interaction_model, four_way_interaction_model)$"Pr(>F)"[2]
+```{r}
+big_fit = lm(quality ~ . ^ 2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
+fit_aic_3 = step(big_fit, direction = "backward", trace = 0)
 ```
 
-Since p-value is smaller than 0.05, we reject the null hypothesis and conclude that the "four_way_interaction_model" is better.
+```{r}
+length(coef(fit_aic_3))
+```
 
-We will leave this model for future comparisons with other potential models.
+```{r}
+summary(fit_aic_3)$r.sq
+```
 
 ### To add on
 
