@@ -267,7 +267,7 @@ wine_mod_exhaustive = lm(quality ~ fixed.acidity + volatile.acidity  + residual.
 ```
 
 
-## Quadratic Models
+### Quadratic Models
 
 We will fit some more complex models. 
 
@@ -347,7 +347,7 @@ both_aic model has the greatest r.square and smallest rmse.
 
 Therefore, we choose the both_aic model as our interaction model.
 
-### To add on
+## Classification
 
 ```{r }
 ```

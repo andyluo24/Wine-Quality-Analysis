@@ -407,12 +407,10 @@ summary {
 <ul>
 <li><a href="#full-additive-model">Full additive model</a></li>
 <li><a href="#variable-selection-forward-backward-exhaustive-selection-with-aic-bic">Variable Selection (Forward / Backward / Exhaustive Selection with AIC &amp; BIC)</a></li>
-</ul></li>
-<li><a href="#quadratic-models">Quadratic Models</a>
-<ul>
+<li><a href="#quadratic-models">Quadratic Models</a></li>
 <li><a href="#interaction-model">Interaction Model</a></li>
-<li><a href="#to-add-on">To add on</a></li>
 </ul></li>
+<li><a href="#classification">Classification</a></li>
 </ul></li>
 <li><a href="#results">Results</a></li>
 <li><a href="#discussion">Discussion</a></li>
@@ -727,9 +725,8 @@ all_wine_mod$which[best_bic_ind,]</code></pre>
 <p>By comparing the predictors selected by an exhaustive search, best AIC, and best BIC, we have found that they all select the same predictors, which include <strong>fixed.acidity</strong>, <strong>volatile.acidity</strong>, <strong>residual.sugar</strong>, <strong>density</strong>, <strong>pH</strong>, <strong>sulphates</strong>, <strong>alcohol</strong>, and <strong>type</strong>.</p>
 <pre class="r"><code>wine_mod_exhaustive = lm(quality ~ fixed.acidity + volatile.acidity  + residual.sugar + density + pH + sulphates + alcohol + type, data = training_data)</code></pre>
 </div>
-</div>
-<div id="quadratic-models" class="section level2">
-<h2>Quadratic Models</h2>
+<div id="quadratic-models" class="section level3">
+<h3>Quadratic Models</h3>
 <p>We will fit some more complex models.</p>
 <p>We want to start with a big model and use backwards AIC to reduce the number of parameters.</p>
 <p>Before we generate a big model, we want to compare and get the best multiple linear regression model.</p>
@@ -768,6 +765,7 @@ fit_aic = step(big_fit, direction = &quot;backward&quot;, trace = 0)</code></pre
 <pre class="r"><code>summary(fit_aic)$r.sq</code></pre>
 <pre><code>## [1] 0.3192827</code></pre>
 <p>There are total 18 parameters in this model, which has a r.square = 0.3193.</p>
+</div>
 <div id="interaction-model" class="section level3">
 <h3>Interaction Model</h3>
 <p>As the model shown above, the first-order terms include all numeric variables besides the response and “critric.acid”.</p>
@@ -798,9 +796,9 @@ cbind(rmse, rsqr)</code></pre>
 <p>both_aic model has the greatest r.square and smallest rmse.</p>
 <p>Therefore, we choose the both_aic model as our interaction model.</p>
 </div>
-<div id="to-add-on" class="section level3">
-<h3>To add on</h3>
 </div>
+<div id="classification" class="section level2">
+<h2>Classification</h2>
 </div>
 </div>
 <div id="results" class="section level1">
