@@ -61,6 +61,7 @@ library(leaps)
 library(faraway)
 library(caret)
 library(e1071)
+library(plyr)
 # Set seed for report consistency
 set.seed(420)
 ```
@@ -354,7 +355,15 @@ Given the nature of the response variable, we may expect that linear regression 
 
 Therefore, we'd like to consider some classification methods.
 
-### Multi-class Support Vector Machine
+```{r}
+count(training_data, "quality")
+```
+
+From above, we see that the levels in "quality" are unevenly distributed.
+
+Therefore, some classification methods might not perform well on the quality levels with lower frequency.
+
+### Support Vector Machine
 
 ```{r}
 training_data$quality = as.factor(training_data$quality)
