@@ -237,8 +237,6 @@ By comparing the predictors selected by an exhaustive search, best AIC, and best
 wine_mod_exhaustive = lm(quality ~ fixed.acidity + volatile.acidity  + residual.sugar + density + pH + sulphates + alcohol + type, data = training_data)
 ```
 
-### Quadratic Models
-
 We will fit some more complex models. 
 
 We want to start with a big model and use backwards AIC to reduce the number of parameters.   
@@ -255,65 +253,67 @@ r.square = c(summary(full.add.model)$adj.r.squared, summary(wine_mod_back_aic)$a
 cbind(rmse, r.square)
 ```
 
-After comparing the adjusted R-squared and LOOCV RMSE, we reach the conclusion that the model created by backward AIC selection is the best model because it has the lowest LOOCV RMSE and biggest adjusted R-squared. 
+After comparing the adjusted R-squared and LOOCV RMSE, we notice that the models selected by the forward and backward selection with AIC, **wine_mod_back_aic** and **wine_mod_forw_aic**, are identical because they have the same predictors, R-squared, and LOOCV RMSE. **wine_mod_back_aic** has the lowest LOOCV RMSE and biggest adjusted R-squared. However, its number of predictors are more than **wine_mod_exhaustive**. 
 
-Then we can use the predictors in backward AIC model to generate a quadratic model.
 ```{r}
-coef(wine_mod_back_aic)
+cbind(length(coef(wine_mod_back_aic)),length(coef(wine_mod_exhaustive)))
+```
+
+And we notice that the LOOCV RMSE and R-squared of these two models are very closed. Thus, we decide to adopt the one with less predictors as the best model so far, **wine_mod_exhaustive**. 
+
+## Quadratic Model
+
+In the **wine_mod_exhaustive** model, there are only first-order terms. Next, we will consider polynomial terms. We will put the predictors of **wine_mod_exhaustive** into quadratic forms and compare the new model with **wine_mod_exhaustive**. 
+
+```{r}
+coef(wine_mod_exhaustive) # predictors of wine_mod_exhaustive
 ```
 
 ```{r}
-big_fit = lm(quality ~ . + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
-fit_aic = step(big_fit, direction = "backward", trace = 0)
+wine_mod_exhaustive_quad = lm(quality ~ . + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
+summary(wine_mod_exhaustive_quad)
+```
+
+It is clear that not all of the predictors are significant. Thus, we will use backward AIC selection to create a new model. 
+
+```{r}
+wine_mod_exhaustive_quad_aic = step(wine_mod_exhaustive_quad, direction = "backward", trace = 0)
+summary(wine_mod_exhaustive_quad_aic)
 ```
 
 ```{r}
-length(coef(fit_aic))
+anova(wine_mod_exhaustive_quad_aic, wine_mod_exhaustive_quad)
 ```
 
-```{r}
-summary(fit_aic)$r.sq
-```
-
-There are total 18 parameters in this model, which has a r.square = 0.3193.
+The p-value, 0.477, indicates that we will prefer the smaller model, **wine_mod_exhaustive_quad_aic**. 
 
 ### Interaction Model
 
-As the model shown above, the first-order terms include all numeric variables besides the response and "critric.acid".
+```{r}
+coef(wine_mod_exhaustive)
+```
 
-Therefore, we keep the remaining variables and build a new model by adding the two-way interactions.
+The **wine_mod_exhaustive** model contains **fixed.acidity**, **volatile.acidity**, **residual.sugar**, **density**, **pH**, **sulphates**, **alcohol**, and **type** as predictors. We will consider the two-way interactions between these predictors and add these terms to **wine_mod_exhaustive_quad_aic** to construct a new model. 
 
 ```{r }
-two_way_interaction_model = lm(quality ~ .^2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
-n = length(resid(two_way_interaction_model))
-both_start = lm(quality ~ 1, data = training_data)
-# fit stepwise aic model
-both_aic = step(
-  both_start, 
-  scope = quality ~ .^2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2),
-  direction = "both", trace = 0)
-# fit stepwise bic model
-both_bic = step(
-  both_start, 
-  scope = quality ~ .^2 + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(chlorides ^ 2) + I(free.sulfur.dioxide ^ 2) + I(total.sulfur.dioxide ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2),
-  direction = "both", k = log(n), trace = 0)
+two_way_interaction_model = lm(quality ~ (fixed.acidity + volatile.acidity + residual.sugar + density + pH + sulphates + alcohol + type)^2 + I(fixed.acidity^2) + I(volatile.acidity^2) + I(residual.sugar^2) + I(density^2) + I(pH^2) + I(sulphates^2) + I(alcohol^2), data = training_data)
+summary(two_way_interaction_model)
 ```
 
-We then want to evaluate the efficiency of these two models.
+It looks like there are many redundant insignificant terms in this model. We then use backward selection with AIC to create a new model.
 
 ```{r}
-rmse = c(calc_loocv_rmse(both_aic), calc_loocv_rmse(both_bic))
-rsqr = c(summary(both_aic)$r.square, summary(both_bic)$r.square)
-cbind(rmse, rsqr)
+int_aic = step(two_way_interaction_model, direction = "backward", trace = 0)
+summary(int_aic)
 ```
+
+We then want to compare these two models to find out the better one. 
 
 ```{r}
-length(coef(both_aic))
+anova(int_aic, two_way_interaction_model)
 ```
 
-both_aic model has the greatest r.square and smallest rmse.
-
-Therefore, we choose the both_aic model as our interaction model.
+After the comparison, the large p-value, 0.7799, suggests that we prefer the model **int_aic**. 
 
 ## Classification
 
