@@ -50,7 +50,7 @@ Then we will build a model to predict the wine quality based on those attributes
   
 In this project, we will use "Quality" as the response variable and all other attributes as predictor variables to discover the most appropriate model.
 
-# Analysis
+# Methods
 
 ## Data Preprocessing
 
@@ -345,6 +345,10 @@ rsqr = c(summary(both_aic)$r.square, summary(both_bic)$r.square)
 cbind(rmse, rsqr)
 ```
 
+```{r}
+length(coef(both_aic))
+```
+
 both_aic model has the greatest r.square and smallest rmse.
 
 Therefore, we choose the both_aic model as our interaction model.
@@ -376,9 +380,48 @@ We use the default method and kernal in this case and the model finds 4450 suppo
 
 1408 for "3", 1924 for "4", 768 for "5", 175 for "6", 145 for "7", 26 for "8", and 4 for "9".
 
+
+
+# Results
+
+From the above analysis, we have got a full additive model, a best quadratic model, a best interaction model, and a SVM model. We will use the testing data we split above to decide which model is the best.
+1. Full additive model
 ```{r}
-prediction = predict(svm_model, testing_data)
-confusion_matrix = table(testing_data$quality, prediction)
+prediction = predict(full.add.model, testing_data)
+prediction_round = round(prediction,0)
+table(testing_data$quality, prediction_round)
+```
+
+From the above confusion matrix, we calculate that the accuracy is 0.534
+
+2. Best quadratic model
+
+```{r}
+prediction2 = predict(fit_aic, testing_data)
+prediction2_round = round(prediction,0)
+table(testing_data$quality, prediction2_round)
+```
+
+From the above confusion matrix, we calculate that the accuracy is 0.545
+
+3. Best interaction model
+
+```{r}
+prediction3 = predict(both_aic, testing_data)
+prediction3_round = round(prediction,0)
+table(testing_data$quality, prediction3_round)
+```
+
+From the above confusion matrix, we calculate that the accuracy is 0.545
+
+4. SVM
+```{r}
+prediction4 = predict(svm_model, testing_data)
+confusion_matrix = table(testing_data$quality, prediction4)
+confusion_matrix
+```
+
+```{r}
 correctPred = 0
 for (i in 1:nrow(confusion_matrix)) {
   correctPred = correctPred + confusion_matrix[i, i]
@@ -387,11 +430,9 @@ accuracy = correctPred / nrow(testing_data)
 accuracy
 ```
 
-We use the testing data we split above to evaluate our model.
+From the above confusion matrix, we calculate that the accuracy is 0.663
 
-The accuracy for this model is 66.26%.
-
-# Results
+We conclude that SVM performs the best.
 
 # Discussion
 
