@@ -375,7 +375,7 @@ We conclude that SVM and **int_aic** are the best two final models.
 
 # Discussion
 
-We would like to seek out some methods that can improve the performance of **int_aic**. We will conduct some diagnostics to **int_aic** and perform the outliers and influential points diagnostics to the training data. 
+Our final model is useful because it contains a number of predictors that have significant impacts to the quality of wines and these predictors display significant practical meanings. Among the predictors that we find, **alcohol** is the most significant predictor. Thus, our model indicates that when consumers are purchasing wines, they should pay more attention to the amount of alcohol that wines contain. Wine producers should also take the amount of alcohol into consideration when brewing wines or trying to explore new wine products. The amount of alcohol can decide the quality in some degrees, and will subsequently influence the wine sales and incomes of wine producers. Another predictors that we should pay special attention to is the **density**. Not only our final model contains this predictor, but also the simple linear regression model that solely includes this variable as the predictor shows a regression line with the large slope (in absolute value). We know that the definition of density as mentioned in the introduction section states that the density indicates the amount of sugar and alcohol in the alcohol. When authenticating and evaluating the quality of wines, the density of wines should be paid special attentions by wine experts and connoisseurs.  
 
 # Appendix
 ## Accuracy table
