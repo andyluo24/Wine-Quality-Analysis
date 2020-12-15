@@ -39,7 +39,7 @@ Wine, as one type of alcohol, has a total consumption of 966 million in the US i
 
 ## Data Preprocessing
 
-```{r dp0, message = FALSE}
+```{r dp0, include = FALSE}
 # Load required packages
 library(PerformanceAnalytics)
 library(tidyverse)
@@ -288,6 +288,7 @@ Therefore, we'd like to consider some classification methods.
 ```{r}
 t = as.data.frame(table(training_data$quality))
 t
+count(training_data, "quality")
 ```
 
 From above, we see that the levels in "quality" are unevenly distributed.
@@ -305,8 +306,6 @@ summary(svm_model)
 We use the default method and kernal in this case and the model finds 4450 support vectors distributed across the classes.
 
 1408 for "3", 1924 for "4", 768 for "5", 175 for "6", 145 for "7", 26 for "8", and 4 for "9".
-
-We'll use the testing data to examine the accuracy of this model.
 
 # Results
 
@@ -379,3 +378,18 @@ We conclude that SVM and **int_aic** are the best two final models.
 We would like to seek out some methods that can improve the performance of **int_aic**. We will conduct some diagnostics to **int_aic** and perform the outliers and influential points diagnostics to the training data. 
 
 # Appendix
+## Accuracy table
+Here we are going to show the prediction accuracy of all models discussed above. 
+```{r}
+all_models = c("int_aic", "two_way_interaction_model", "wine_mod_exhaustive_quad_aic", "wine_mod_exhaustive_quad", "wine_mod_exhaustive", "full.add.model", "wine_mod_back_aic", "wine_mod_back_bic", "wine_mod_forw_aic", "wine_mod_forw_bic", "model_alcohol", "SVM")
+all_accuracy = c(accur(testing_data$quality, predict(int_aic, testing_data)), accur(testing_data$quality, predict(two_way_interaction_model, testing_data)), accur(testing_data$quality, predict(wine_mod_exhaustive_quad_aic, testing_data)), accur(testing_data$quality, predict(wine_mod_exhaustive_quad, testing_data)), accur(testing_data$quality, predict(wine_mod_exhaustive, testing_data)), accur(testing_data$quality, predict(full.add.model, testing_data)), accur(testing_data$quality, predict(wine_mod_back_aic, testing_data)), accur(testing_data$quality, predict(wine_mod_back_bic, testing_data)), accur(testing_data$quality, predict(wine_mod_forw_aic, testing_data)), accur(testing_data$quality, predict(wine_mod_forw_bic, testing_data)), accur(testing_data$quality, predict(model_alcohol, testing_data)),
+accuracy)
+all_accuracy = cbind(all_models, all_accuracy)
+all_accuracy
+```
+
+## Group Number 
+Eric Lu (cunyuan2)   
+Andy Luo (yuhuail2)   
+Ted Chen (jundong2)  
+Dali Su (dalisu2)   
