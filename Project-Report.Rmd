@@ -375,3 +375,5 @@ We conclude that SVM and **int_aic** are the best two final models.
 We would like to seek out some methods that can improve the performance of **int_aic**. We will conduct some diagnostics to **int_aic** and perform the outliers and influential points diagnostics to the training data. 
 
 # Appendix
+
+Github Repo for this project: https://github.com/chenjundongted/STAT420Project
