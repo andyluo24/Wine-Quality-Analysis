@@ -46,6 +46,7 @@ library(tidyverse)
 library(caret)
 library(leaps)
 library(faraway)
+library(e1071)
 # Set seed for report consistency
 set.seed(420)
 ```
@@ -270,7 +271,7 @@ coef(wine_mod_exhaustive) # predictors of wine_mod_exhaustive
 ```
 
 ```{r}
-wine_mod_exhaustive_quad = lm(quality ~ . + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I( density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
+wine_mod_exhaustive_quad = lm(quality ~ . + I(fixed.acidity ^ 2) + I(volatile.acidity ^ 2) + I(residual.sugar ^ 2) + I(density ^ 2) + I(pH ^ 2) + I(sulphates ^ 2) + I(alcohol ^ 2), data = training_data)
 summary(wine_mod_exhaustive_quad)
 ```
 
@@ -329,7 +330,7 @@ From above, we see that the levels in "quality" are unevenly distributed.
 
 Therefore, some classification methods might not perform well on the quality levels with lower frequency.
 
-### Support Vector Machine
+# Support Vector Machine
 
 ```{r}
 training_data$quality = as.factor(training_data$quality)
@@ -341,44 +342,58 @@ We use the default method and kernal in this case and the model finds 4450 suppo
 
 1408 for "3", 1924 for "4", 768 for "5", 175 for "6", 145 for "7", 26 for "8", and 4 for "9".
 
+### Results
 
-
-# Results
-
-From the above analysis, we have got a full additive model, a best quadratic model, a best interaction model, and a SVM model. We will use the testing data we split above to decide which model is the best.
-1. Full additive model
-```{r}
-prediction = predict(full.add.model, testing_data)
-prediction_round = round(prediction,0)
-table(testing_data$quality, prediction_round)
-```
-
-From the above confusion matrix, we calculate that the accuracy is 0.534
-
-2. Best quadratic model
+We would like to use the adjusted R-squared, LOOCV RMSE, AIC value, and number of terms of models to the testing data as standards to select the best model among the linear regression and interaction models. 
 
 ```{r}
-prediction2 = predict(fit_aic, testing_data)
-prediction2_round = round(prediction,0)
-table(testing_data$quality, prediction2_round)
+adjusted.r.squared = c(summary(int_aic)$adj.r.squared, summary(two_way_interaction_model)$adj.r.squared, summary(wine_mod_exhaustive_quad_aic)$adj.r.squared, summary(wine_mod_exhaustive_quad)$adj.r.squared, summary(wine_mod_exhaustive)$adj.r.squared, summary(full.add.model)$adj.r.squared, summary(wine_mod_back_aic)$adj.r.squared, summary(wine_mod_back_bic)$adj.r.squared, summary(wine_mod_forw_aic)$adj.r.squared, summary(wine_mod_forw_bic)$adj.r.squared, summary(model_alcohol)$adj.r.squared)
+
+rmse = c(calc_loocv_rmse(int_aic), calc_loocv_rmse(two_way_interaction_model), calc_loocv_rmse(wine_mod_exhaustive_quad_aic), calc_loocv_rmse(wine_mod_exhaustive_quad), calc_loocv_rmse(wine_mod_exhaustive), calc_loocv_rmse(full.add.model), calc_loocv_rmse(wine_mod_back_aic), calc_loocv_rmse(wine_mod_back_bic), calc_loocv_rmse(wine_mod_forw_aic), calc_loocv_rmse(wine_mod_forw_bic), calc_loocv_rmse(model_alcohol))
+
+aic = c(extractAIC(int_aic)[2], extractAIC(two_way_interaction_model)[2], extractAIC(wine_mod_exhaustive_quad_aic)[2], extractAIC(wine_mod_exhaustive_quad)[2], extractAIC(wine_mod_exhaustive)[2], extractAIC(full.add.model)[2], extractAIC(wine_mod_back_aic)[2], extractAIC(wine_mod_back_bic)[2], extractAIC(wine_mod_forw_aic)[2], extractAIC(wine_mod_forw_bic)[2], extractAIC(model_alcohol)[2])
+
+term_number = c(length(coef(int_aic)), length(coef(two_way_interaction_model)), length(coef(wine_mod_exhaustive_quad_aic)), length(coef(wine_mod_exhaustive_quad)), length(coef(wine_mod_exhaustive)), length(coef(full.add.model)), length(coef(wine_mod_back_aic)), length(coef(wine_mod_back_bic)), length(coef(wine_mod_forw_aic)), length(coef(wine_mod_forw_bic)), length(coef(model_alcohol)))
+
+models = c("int_aic", "two_way_interaction_model", "wine_mod_exhaustive_quad_aic", "wine_mod_exhaustive_quad", "wine_mod_exhaustive", "full.add.model", "wine_mod_back_aic", "wine_mod_back_bic", "wine_mod_forw_aic", "wine_mod_forw_bic", "model_alcohol")
+
+cbind(models, adjusted.r.squared, rmse, aic, term_number)
 ```
 
-From the above confusion matrix, we calculate that the accuracy is 0.545
-
-3. Best interaction model
+By looking at the table above, we can see that the models **int_aic** has the best performance since **int_aic** has the highest adjusted R-squared, the lowest LOOCV RMSE, and smallest AIC. However, it has relatively larger number of terms comparing to **wine_mod_exhaustive_quad_aic**, which has similar values of the three aforementioned standards. We would like to investigate how accurate these two models can have on the testing data. 
 
 ```{r}
-prediction3 = predict(both_aic, testing_data)
-prediction3_round = round(prediction,0)
-table(testing_data$quality, prediction3_round)
+accur <- function(list1, list2) {
+  if (length(list1) != length(list2)) {
+    stop()
+  }
+  list1 = round(list1,0)
+  list2 = round(list2,0)
+  n = length(list1)
+  count = 0
+  for (i in 1:n) {
+    if (list1[i] == list2[i]) {
+      count = count + 1
+    }
+  }
+  accuracy = count/n
+  return(accuracy)
+}
+
+prediction1 = predict(int_aic, testing_data)
+prediction2 = predict(wine_mod_exhaustive_quad_aic, testing_data)
+accuracy1 = accur(testing_data$quality, prediction1)
+accuracy2 = accur(testing_data$quality, prediction2)
+cbind(accuracy1, accuracy2)
 ```
 
-From the above confusion matrix, we calculate that the accuracy is 0.545
+The **int_aic** has a higher accuracy than **wine_mod_exhaustive_quad_aic**. We prefer **int_aic** as the best model among the linear regression and interaction models. We also would like to compare the accuracy between classification method and **int_aic**, specifically the support vector machine method.
+
 
 4. SVM
 ```{r}
-prediction4 = predict(svm_model, testing_data)
-confusion_matrix = table(testing_data$quality, prediction4)
+prediction3 = predict(svm_model, testing_data)
+confusion_matrix = table(testing_data$quality, prediction3)
 confusion_matrix
 ```
 
@@ -391,10 +406,12 @@ accuracy = correctPred / nrow(testing_data)
 accuracy
 ```
 
-From the above confusion matrix, we calculate that the accuracy is 0.663
+From the above confusion matrix, we calculate that the accuracy is 0.663, which is larger than the accuracy of **int_aic**. 
 
-We conclude that SVM performs the best.
+We conclude that SVM and **int_aic** are the best two final models. 
 
-# Discussion
+## Discussion
 
-# Appendix
+We would like to seek out some methods that can improve the performance of **int_aic**. We will conduct some diagnostics to **int_aic** and perform the outliers and influential points diagnostics to the training data. 
+
+## Appendix
