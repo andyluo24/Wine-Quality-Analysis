@@ -77,6 +77,8 @@ training_data = wine[random_sample, ]
 testing_data = wine[-random_sample, ]
 ```
 
+We split the original data, using 80% of the data for training and 20% of the data for testing.
+
 ## Simple Linear Regression Model 
 
 First, we try to use simple linear regression to check if the wine quality is closely connected to one attribute. 
@@ -85,6 +87,12 @@ Here is the chart for correlation among all variables except type.
 ```{r}
 chart.Correlation(training_data[, 1:12], histogram = TRUE, pch = 19)
 ```
+
+From the above graph, we find that it's hard to notice a conclusive pattern.
+
+But we still find that the correlation between free.sulfur.dioxide and all.sulfur.dioxide is high, which adhere to our intuition.
+
+Also, we discover that the correlation between quality and alcohol is 0.45, which is the highest compared to other predictors.
 
 ```{r}
 model1 = lm(quality ~ free.sulfur.dioxide, data = training_data)
@@ -99,8 +107,6 @@ model9 = lm(quality ~ sulphates, data = training_data)
 model10 = lm(quality ~ alcohol, data = training_data)
 model11 = lm(quality ~ citric.acid, data = training_data)
 ```
-
-From the above graph, we find that it's hard to notice a conclusive pattern. 
 
 To compare these models in a more visualized way, we will compare the residual standard error and R-squared of each model to select the best one.
 
@@ -129,7 +135,7 @@ full.add.model = lm(quality ~ ., data = training_data)
 summary(full.add.model)
 ```
 
-We would like to compare the best simple linear regression model and this full addictive model to find the better of these two models. 
+The p-value of the model is less than 0.05. Therefore, we reject the null hypothesis and conclude that at least one of the predictors is significant in explaining the response. We would like to compare the best simple linear regression model and this full addictive model to find the better of these two models. 
 
 ```{r}
 model_alcohol = model10
@@ -145,40 +151,32 @@ We use backward selection with AIC and BIC to construct two new models and we wi
 ```{r results = FALSE}
 # Backward Search with AIC
 wine_mod_back_aic = step(full.add.model, direction = "backward", trace = 0)
-coef(wine_mod_back_aic)
 ```
+
 ```{r}
 # Backward Search with BIC
 n = length(resid(full.add.model))
 wine_mod_back_bic = step(full.add.model, direction = "backward", trace = 0, k = log(n))
-coef(wine_mod_back_bic)
 ```
 
 ```{r}
 # Forward Search with AIC
 full.add.model.start = lm(quality ~ 1, data = training_data)
 wine_mod_forw_aic = step(full.add.model.start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward", trace = 0)
-coef(wine_mod_forw_aic)
 ```
 
-
-```{r results = FALSE}
+```{r}
 # Forward Selection with BIC
 wine_mod_forw_bic = step(full.add.model.start, scope = quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol + type, direction = "forward", k = log(n), trace = 0)
-coef(wine_mod_forw_bic)
 ```
 
 ```{r}
 # Exhaustive Search
 all_wine_mod = summary(regsubsets(quality ~ ., data = training_data))
-all_wine_mod$which
+best_r2_ind = which.max(all_wine_mod$adjr2)
 ```
 
-```{r}
-(best_r2_ind = which.max(all_wine_mod$adjr2))
-all_wine_mod$which[best_r2_ind,]
-```
-```{r}
+```{r, warning=F}
 # Exhaustive search with best AIC
 p = length(coef(full.add.model))
 n = length(resid(full.add.model))
@@ -186,7 +184,10 @@ best_aic = n * log(all_wine_mod$rss / n) + 2 * (2:p)
 best_aic_ind = which.min(best_aic)
 all_wine_mod$which[best_aic_ind,]
 ```
-```{r}
+
+The exhaustive search model with AIC contains the variables fixed.acidity, volatile.acidity, residual.sugar, density, pH, sulphates, alcohol, and type.
+
+```{r, warning=F}
 # Exhaustive search with best BIC
 best_bic = n * log(all_wine_mod$rss / n) + log(n) * (2:p)
 best_bic_ind = which.min(best_bic)
@@ -241,7 +242,6 @@ It is clear that not all of the predictors are significant. Thus, we will use ba
 
 ```{r}
 wine_mod_exhaustive_quad_aic = step(wine_mod_exhaustive_quad, direction = "backward", trace = 0)
-summary(wine_mod_exhaustive_quad_aic)
 ```
 
 ```{r}
@@ -263,11 +263,12 @@ two_way_interaction_model = lm(quality ~ (fixed.acidity + volatile.acidity + res
 summary(two_way_interaction_model)
 ```
 
-It looks like there are many redundant insignificant terms in this model. We then use backward selection with AIC to create a new model.
+It looks like there are many redundant insignificant terms in this model. 
+
+We then use backward selection with AIC to create a new model.
 
 ```{r}
 int_aic = step(two_way_interaction_model, direction = "backward", trace = 0)
-summary(int_aic)
 ```
 
 We then want to compare these two models to find out the better one. 
@@ -285,6 +286,8 @@ Given the nature of the response variable, we may expect that linear regression 
 Therefore, we'd like to consider some classification methods.
 
 ```{r}
+t = as.data.frame(table(training_data$quality))
+t
 count(training_data, "quality")
 ```
 
@@ -375,5 +378,3 @@ We conclude that SVM and **int_aic** are the best two final models.
 We would like to seek out some methods that can improve the performance of **int_aic**. We will conduct some diagnostics to **int_aic** and perform the outliers and influential points diagnostics to the training data. 
 
 # Appendix
-
-Github Repo for this project: https://github.com/chenjundongted/STAT420Project
