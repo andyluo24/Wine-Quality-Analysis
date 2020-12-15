@@ -389,8 +389,6 @@ cbind(accuracy1, accuracy2)
 
 The **int_aic** has a higher accuracy than **wine_mod_exhaustive_quad_aic**. We prefer **int_aic** as the best model among the linear regression and interaction models. We also would like to compare the accuracy between classification method and **int_aic**, specifically the support vector machine method.
 
-
-4. SVM
 ```{r}
 prediction3 = predict(svm_model, testing_data)
 confusion_matrix = table(testing_data$quality, prediction3)
