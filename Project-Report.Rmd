@@ -288,7 +288,6 @@ Therefore, we'd like to consider some classification methods.
 ```{r}
 t = as.data.frame(table(training_data$quality))
 t
-count(training_data, "quality")
 ```
 
 From above, we see that the levels in "quality" are unevenly distributed.
@@ -306,6 +305,8 @@ summary(svm_model)
 We use the default method and kernal in this case and the model finds 4450 support vectors distributed across the classes.
 
 1408 for "3", 1924 for "4", 768 for "5", 175 for "6", 145 for "7", 26 for "8", and 4 for "9".
+
+We'll use the testing data to examine the accuracy of this model.
 
 # Results
 

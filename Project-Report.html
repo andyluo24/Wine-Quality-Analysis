@@ -860,9 +860,6 @@ t</code></pre>
 ## 5    7  863
 ## 6    8  155
 ## 7    9    4</code></pre>
-<pre class="r"><code>count(training_data, &quot;quality&quot;)</code></pre>
-<pre><code>##   &quot;quality&quot;    n
-## 1   quality 5199</code></pre>
 <p>From above, we see that the levels in “quality” are unevenly distributed.</p>
 <p>Therefore, some classification methods might not perform well on the quality levels with lower frequency.</p>
 <div id="support-vector-machine" class="section level3">
@@ -892,6 +889,7 @@ summary(svm_model)</code></pre>
 ##  3 4 5 6 7 8 9</code></pre>
 <p>We use the default method and kernal in this case and the model finds 4450 support vectors distributed across the classes.</p>
 <p>1408 for “3”, 1924 for “4”, 768 for “5”, 175 for “6”, 145 for “7”, 26 for “8”, and 4 for “9”.</p>
+<p>We’ll use the testing data to examine the accuracy of this model.</p>
 </div>
 </div>
 </div>
