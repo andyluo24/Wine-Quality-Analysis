@@ -7,7 +7,7 @@ output:
     toc: yes
 ---
 
-### Introduction
+# Introduction
 
 ## Data Description
 
@@ -36,7 +36,7 @@ Categorical attributes:
 
 Wine, as one type of alcohol, has a total consumption of 966 million in the US in 2018. Therefore, we find it may be interesting to discover the relationship between wine quality and other attributes. Then we will build a model to predict the wine quality based on those attributes. In this project, we will use "Quality" as the response variable and all other attributes as predictor variables to discover the most appropriate model.
 
-### Methods
+# Methods
 
 ## Data Preprocessing
 
@@ -176,7 +176,7 @@ anova(model_alcohol, full.add.model)
 
 By comparing the **model_alcohol** and **full.add.model**, we notice that the p-value is extremely closed to 0. We conclude that we prefer the **full.add.model**, which is the full addictive model. However, the best model is not necessary to include all the predictors. We conduct a significance test for the full model (above) and we find that although the residual standard error is very small, the adjusted R-squared is just 0.2967. We can state that the full addictive model is probably not the best model. 
 
-# Variable Selection (Forward / Backward / Exhaustive Selection with AIC & BIC) 
+### Forward / Backward / Exhaustive Selection with AIC & BIC
 
 We use backward selection with AIC and BIC to construct two new models and we will also use exhaustive search with best AIC and BIC to build a number of models and select the best model among these models. 
 
@@ -262,7 +262,7 @@ cbind(length(coef(wine_mod_back_aic)),length(coef(wine_mod_exhaustive)))
 
 And we notice that the LOOCV RMSE and R-squared of these two models are very closed. Thus, we decide to adopt the one with less predictors as the best model so far, **wine_mod_exhaustive**. 
 
-## Quadratic Model
+### Quadratic Model
 
 In the **wine_mod_exhaustive** model, there are only first-order terms. Next, we will consider polynomial terms. We will put the predictors of **wine_mod_exhaustive** into quadratic forms and compare the new model with **wine_mod_exhaustive**. 
 
@@ -330,7 +330,7 @@ From above, we see that the levels in "quality" are unevenly distributed.
 
 Therefore, some classification methods might not perform well on the quality levels with lower frequency.
 
-# Support Vector Machine
+### Support Vector Machine
 
 ```{r}
 training_data$quality = as.factor(training_data$quality)
@@ -342,7 +342,7 @@ We use the default method and kernal in this case and the model finds 4450 suppo
 
 1408 for "3", 1924 for "4", 768 for "5", 175 for "6", 145 for "7", 26 for "8", and 4 for "9".
 
-### Results
+# Results
 
 We would like to use the adjusted R-squared, LOOCV RMSE, AIC value, and number of terms of models to the testing data as standards to select the best model among the linear regression and interaction models. 
 
@@ -408,8 +408,8 @@ From the above confusion matrix, we calculate that the accuracy is 0.663, which 
 
 We conclude that SVM and **int_aic** are the best two final models. 
 
-## Discussion
+# Discussion
 
 We would like to seek out some methods that can improve the performance of **int_aic**. We will conduct some diagnostics to **int_aic** and perform the outliers and influential points diagnostics to the training data. 
 
-## Appendix
+# Appendix
